@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+:root {
+  --warm-lightest: #FEFCF3;
+  --warm-cream:    #FAE8B4;
+  --warm-sand:     #CBBD93;
+  --warm-olive:    #80775C;
+  --warm-bark:     #574A24;
+  --warm-card:     #FFFEF8;
+}
+
+@theme inline {
+  --font-mono: var(--font-geist-mono);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--warm-lightest);
+  color: var(--warm-bark);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #FAE8B4; }
+::-webkit-scrollbar-thumb { background: #CBBD93; border-radius: 3px; }
+
+/* ── Sparkles ── */
+@keyframes sparkle {
+  0%   { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  30%  { opacity: 1; transform: scale(1.1) rotate(15deg); }
+  60%  { opacity: 0.7; transform: scale(0.9) rotate(-5deg); }
+  100% { opacity: 0; transform: scale(0.4) rotate(20deg); }
+}
+.sparkle { animation: sparkle ease-in-out infinite; }
+
+/* ── Floating dots ── */
+@keyframes dot-float {
+  0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.4; }
+  33%       { transform: translateY(-18px) translateX(8px); opacity: 0.8; }
+  66%       { transform: translateY(10px) translateX(-12px); opacity: 0.5; }
+}
+.dot-float { animation: dot-float ease-in-out infinite; }
+
+/* ── Typing phrase fade ── */
+@keyframes phrase-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes phrase-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+.phrase-in  { animation: phrase-in  0.5s ease-out forwards; }
+.phrase-out { animation: phrase-out 0.4s ease-in  forwards; }
+
+/* ── Fade in up ── */
+@keyframes fadein-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fadein-up { animation: fadein-up 0.7s ease-out forwards; }
+.fadein-up-1 { animation: fadein-up 0.7s 0.1s ease-out both; }
+.fadein-up-2 { animation: fadein-up 0.7s 0.25s ease-out both; }
+.fadein-up-3 { animation: fadein-up 0.7s 0.4s ease-out both; }
+.fadein-up-4 { animation: fadein-up 0.7s 0.55s ease-out both; }
+.fadein-up-5 { animation: fadein-up 0.7s 0.7s ease-out both; }
+
+/* ── Gentle pulse border ── */
+@keyframes warm-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(87,74,36,0.12); }
+  50%       { box-shadow: 0 0 0 8px rgba(87,74,36,0); }
+}
+.warm-pulse { animation: warm-pulse 2.5s ease-in-out infinite; }
+
+/* ── Card hover lift ── */
+.card-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 48px rgba(87,74,36,0.12);
+}
+
+/* ── Swirl slow spin ── */
+@keyframes swirl-drift {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(4deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+.swirl-drift { animation: swirl-drift 18s ease-in-out infinite; }
+
+/* ── State badge cycle ── */
+@keyframes state-pop {
+  0%   { opacity: 0; transform: scale(0.85); }
+  15%  { opacity: 1; transform: scale(1.05); }
+  80%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.9); }
+}
+
+/* ── Cursor blink ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor-blink { animation: blink 1s step-end infinite; }
+
+/* ── Scroll reveal ── */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal-1 { animation: reveal 0.7s 0.1s ease-out both; }
+.reveal-2 { animation: reveal 0.7s 0.2s ease-out both; }
+.reveal-3 { animation: reveal 0.7s 0.3s ease-out both; }
+.reveal-4 { animation: reveal 0.7s 0.4s ease-out both; }

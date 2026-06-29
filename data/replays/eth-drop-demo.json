@@ -1,0 +1,14 @@
+{
+  "name": "ETH Drop Protection Demo",
+  "description": "ETH falls below the rule threshold and triggers exposure reduction.",
+  "feedKey": "ETH_USD",
+  "events": [
+    { "t": 0, "feed": "ETH_USD", "value": 3200 },
+    { "t": 3, "feed": "ETH_USD", "value": 3150 },
+    { "t": 6, "feed": "ETH_USD", "value": 3100 },
+    { "t": 9, "feed": "ETH_USD", "value": 3050 },
+    { "t": 12, "feed": "ETH_USD", "value": 2990 },
+    { "t": 15, "feed": "ETH_USD", "value": 2960 },
+    { "t": 18, "feed": "ETH_USD", "value": 2940 }
+  ]
+}

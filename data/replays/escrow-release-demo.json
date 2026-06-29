@@ -1,0 +1,10 @@
+{
+  "name": "Escrow Release Demo",
+  "description": "Delivery status is confirmed, unlocking the escrow.",
+  "feedKey": "DELIVERY_STATUS",
+  "events": [
+    { "t": 0, "feed": "DELIVERY_STATUS", "value": "pending" },
+    { "t": 5, "feed": "DELIVERY_STATUS", "value": "in_transit" },
+    { "t": 10, "feed": "DELIVERY_STATUS", "value": "confirmed" }
+  ]
+}
