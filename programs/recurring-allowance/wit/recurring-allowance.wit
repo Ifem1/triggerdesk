@@ -1,0 +1,8 @@
+package rialo:recurring-allowance@0.1.0;
+
+use rialo:primitives@0.1.0.{pubkey, lamports, timestamp, error};
+
+world recurring-allowance {
+    export get-state: func() -> result<_, error>;
+    export setup: func(recipient: pubkey, amount-kelvin: u64, interval-seconds: u64) -> result<_, error>;
+}

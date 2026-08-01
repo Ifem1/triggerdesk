@@ -1,0 +1,40 @@
+[package]
+name = "recurring-allowance"
+description = "Venus workflow: recurring RLO distribution with EVERY callback"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[package.metadata.cargo-machete]
+ignored = ["rialo-venus"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+implementation = []
+
+[lints.rust]
+future_incompatible = "warn"
+nonstandard_style = "warn"
+rust_2018_idioms = "warn"
+unsafe_code = "warn"
+
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+    'cfg(target_feature, values("static-syscalls"))',
+    'cfg(target_os, values("solana"))',
+    'cfg(feature, values("frozen-abi", "no-entrypoint", "custom-panic", "custom-heap"))',
+    'cfg(msim)',
+    'cfg(fail_points)',
+    'cfg(rialo_simtest_seed_sweep)',
+    'cfg(bazel)',
+]
+
+[dependencies]
+rialo-s-program = { version = "0.12.2", default-features = false }
+rialo-s-program-error = { version = "0.12.2", features = ["borsh"] }
+rialo-venus = { version = "0.12.2" }
+rialo-venus-proc-macro = { version = "0.12.2" }
+serde = { version = "1.0", features = ["derive"] }

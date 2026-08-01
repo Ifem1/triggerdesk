@@ -2,39 +2,106 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import ExecutionToast from './execution-toast';
+import { useRialo } from '@/lib/rialo/provider';
+import { formatKelvinAsRlo } from '@/lib/rialo/scheduled-transfer';
 
 const NAV = [
-  { href: '/dashboard',    label: 'Dashboard' },
-  { href: '/rules/new',    label: 'New Rule' },
-  { href: '/replay',       label: 'Replay' },
-  { href: '/history',      label: 'History' },
-  { href: '/architecture', label: 'Architecture' },
-  { href: '/settings',     label: 'Settings' },
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/workflows/new', label: 'New Workflow' },
+  { href: '/history', label: 'History' },
+  { href: '/settings', label: 'Settings' },
 ];
+
+const P = {
+  lightest: '#FEFCF3',
+  cream: '#FAE8B4',
+  sand: '#CBBD93',
+  olive: '#80775C',
+  bark: '#574A24',
+};
+
+function WalletButton() {
+  const { wallet, connectionStatus, connectWallet, disconnectWallet, requestAirdrop } = useRialo();
+
+  if (!wallet.publicKey) {
+    return (
+      <button
+        onClick={connectWallet}
+        className="px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all hover:opacity-80"
+        style={{ background: P.bark, color: P.cream }}
+      >
+        Connect Wallet
+      </button>
+    );
+  }
+
+  const short = wallet.publicKey.slice(0, 4) + '...' + wallet.publicKey.slice(-4);
+  const balance = wallet.balanceKelvin !== null ? formatKelvinAsRlo(wallet.balanceKelvin) : '—';
+
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        onClick={requestAirdrop}
+        className="px-3 py-1 rounded-lg text-xs transition-all hover:opacity-80 border"
+        style={{ borderColor: P.sand + '88', color: P.olive }}
+        title="Request 1 RLO airdrop (DevNet only)"
+      >
+        Airdrop
+      </button>
+      <div className="flex items-center gap-2">
+        <span
+          className="w-2 h-2 rounded-full"
+          style={{
+            background: connectionStatus === 'connected' ? '#22c55e' : connectionStatus === 'error' ? '#ef4444' : '#eab308',
+          }}
+        />
+        <span className="text-xs" style={{ color: P.olive }}>
+          {balance} RLO
+        </span>
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(wallet.publicKey!);
+          }}
+          className="text-xs px-2 py-1 rounded-md border transition-all hover:opacity-80"
+          style={{ borderColor: P.sand + '66', color: P.bark }}
+          title={`Click to copy: ${wallet.publicKey}`}
+        >
+          {short}
+        </button>
+        <button
+          onClick={disconnectWallet}
+          className="text-xs px-1 py-1 rounded-md transition-all hover:opacity-60"
+          style={{ color: P.olive }}
+          title="Disconnect wallet"
+        >
+          x
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  if (path === '/') return <>{children}<ExecutionToast /></>;
+  if (path === '/') return <>{children}</>;
 
   return (
-    <div className="flex flex-col min-h-screen" style={{ background: '#FEFCF3' }}>
-      {/* Simulation banner */}
+    <div className="flex flex-col min-h-screen" style={{ background: P.lightest }}>
+      {/* DevNet indicator */}
       <div
-        className="text-center text-xs py-1.5 px-4 tracking-wide"
-        style={{ background: '#574A24', color: '#CBBD93' }}
+        className="text-center text-xs py-1 px-4 tracking-wide"
+        style={{ background: '#1e3a5f', color: '#7db3e0' }}
       >
-        SIMULATION MODE — No real funds moved. No live onchain execution.
-        This simulates Rialo-style conditional execution.
+        RIALO DEVNET — Development-only ephemeral keys. No real funds.
       </div>
 
       {/* Nav */}
       <header
         className="border-b sticky top-6 z-40 backdrop-blur"
-        style={{ borderColor: '#CBBD9366', background: 'rgba(254,252,243,0.92)' }}
+        style={{ borderColor: P.sand + '66', background: 'rgba(254,252,243,0.92)' }}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center gap-6 h-14">
-          <Link href="/" className="font-bold tracking-widest text-sm uppercase" style={{ color: '#574A24' }}>
+          <Link href="/" className="font-bold tracking-widest text-sm uppercase" style={{ color: P.bark }}>
             TriggerDesk
           </Link>
           <nav className="flex gap-1 ml-4">
@@ -45,8 +112,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 className="px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all"
                 style={
                   path.startsWith(n.href)
-                    ? { background: '#574A2415', color: '#574A24', border: '1px solid #CBBD9388' }
-                    : { color: '#80775C' }
+                    ? { background: P.bark + '15', color: P.bark, border: `1px solid ${P.sand}88` }
+                    : { color: P.olive }
                 }
               >
                 {n.label}
@@ -55,25 +122,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="ml-auto">
-            <Link
-              href="/rules/new"
-              className="px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all hover:opacity-80"
-              style={{ background: '#574A24', color: '#FAE8B4' }}
-            >
-              + New Rule
-            </Link>
+            <WalletButton />
           </div>
         </div>
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-10">{children}</main>
-      <ExecutionToast />
 
       <footer
         className="border-t py-4 text-center text-xs"
-        style={{ borderColor: '#CBBD9366', color: '#80775C', background: '#FAE8B433' }}
+        style={{ borderColor: P.sand + '66', color: P.olive, background: P.cream + '33' }}
       >
-        TriggerDesk Simulation Mode — No real funds moved. No live onchain execution.
+        TriggerDesk on Rialo DevNet — Real on-chain workflows. No simulation.
       </footer>
     </div>
   );

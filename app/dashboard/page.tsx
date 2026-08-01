@@ -1,11 +1,61 @@
 'use client';
 
-import { useSim } from '@/lib/simulation/sim-store';
-import RuleCard from '@/components/rules/rule-card';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { formatTimestamp } from '@/lib/utils/format';
+import { useRialo } from '@/lib/rialo/provider';
+import {
+  listWorkflows,
+  formatKelvinAsRlo,
+  getStatusLabel,
+} from '@/lib/rialo/scheduled-transfer';
+import {
+  listAllowanceWorkflows,
+  getAllowanceStatusLabel,
+} from '@/lib/rialo/recurring-allowance';
+import { WORKFLOW_STATUS, ALLOWANCE_STATUS } from '@/lib/rialo/constants';
+import type { ScheduledTransferState, RecurringAllowanceState } from '@/lib/rialo/types';
 
-const P = { lightest:'#FEFCF3', cream:'#FAE8B4', sand:'#CBBD93', olive:'#80775C', bark:'#574A24' };
+const P = { lightest: '#FEFCF3', cream: '#FAE8B4', sand: '#CBBD93', olive: '#80775C', bark: '#574A24' };
+
+type UnifiedEntry =
+  | { type: 'transfer'; address: string; state: ScheduledTransferState }
+  | { type: 'allowance'; address: string; state: RecurringAllowanceState };
+
+function StatusBadge({ label, status }: { label: string; status: 'active' | 'done' | 'error' | 'pending' }) {
+  const colors = {
+    active: { bg: '#EBF5FB', text: '#2E86C1', border: '#AED6F1' },
+    pending: { bg: '#FEF9E7', text: '#B7950B', border: '#F9E79F' },
+    done: { bg: '#EAFAF1', text: '#1E8449', border: '#A9DFBF' },
+    error: { bg: '#FDEDEC', text: '#C0392B', border: '#F5B7B1' },
+  };
+  const c = colors[status];
+
+  return (
+    <span
+      className="text-xs font-mono px-2 py-0.5 rounded-lg border uppercase tracking-widest whitespace-nowrap"
+      style={{ color: c.text, borderColor: c.border, background: c.bg }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function getUnifiedStatus(entry: UnifiedEntry): { label: string; badge: 'active' | 'done' | 'error' | 'pending' } {
+  if (entry.type === 'transfer') {
+    const s = entry.state.status;
+    if (s === WORKFLOW_STATUS.PENDING) return { label: getStatusLabel(s), badge: 'active' };
+    if (s === WORKFLOW_STATUS.CLAIMABLE) return { label: getStatusLabel(s), badge: 'pending' };
+    if (s === WORKFLOW_STATUS.CLAIMED) return { label: getStatusLabel(s), badge: 'done' };
+    if (s === WORKFLOW_STATUS.CANCELLED) return { label: getStatusLabel(s), badge: 'error' };
+    return { label: getStatusLabel(s), badge: 'pending' };
+  } else {
+    const s = entry.state.status;
+    if (s === ALLOWANCE_STATUS.ACTIVE) return { label: getAllowanceStatusLabel(s), badge: 'active' };
+    if (s === ALLOWANCE_STATUS.COMPLETE) return { label: getAllowanceStatusLabel(s), badge: 'done' };
+    if (s === ALLOWANCE_STATUS.CANCELLED) return { label: getAllowanceStatusLabel(s), badge: 'error' };
+    return { label: getAllowanceStatusLabel(s), badge: 'pending' };
+  }
+}
 
 function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
@@ -16,150 +66,259 @@ function Card({ children, style }: { children: React.ReactNode; style?: React.CS
 }
 
 export default function DashboardPage() {
-  const { rules, receipts, appState, feedState } = useSim();
+  const { client, wallet, connectionStatus, blockHeight } = useRialo();
+  const [entries, setEntries] = useState<UnifiedEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
 
-  const activeRules   = rules.filter((r) => !['EXECUTED','EXPIRED','CANCELLED','FAILED','DRAFT'].includes(r.status));
-  const executedRules = rules.filter((r) => r.status === 'EXECUTED');
-  const recentReceipts = receipts.slice(0, 3);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [transfers, allowances] = await Promise.all([
+        listWorkflows(client),
+        listAllowanceWorkflows(client),
+      ]);
+      const unified: UnifiedEntry[] = [
+        ...transfers.map((w) => ({ type: 'transfer' as const, ...w })),
+        ...allowances.map((w) => ({ type: 'allowance' as const, ...w })),
+      ];
+      setEntries(unified);
+    } catch {
+      setEntries([]);
+    }
+    setLoading(false);
+  }, [client]);
+
+  useEffect(() => {
+    refresh();
+    const interval = setInterval(refresh, 15_000);
+    return () => clearInterval(interval);
+  }, [refresh]);
+
+  const active = entries.filter((e) => {
+    if (e.type === 'transfer') return e.state.status === WORKFLOW_STATUS.PENDING;
+    return e.state.status === ALLOWANCE_STATUS.ACTIVE;
+  });
+  const completed = entries.filter((e) => {
+    if (e.type === 'transfer') return e.state.status === WORKFLOW_STATUS.CLAIMED || e.state.status === WORKFLOW_STATUS.CLAIMABLE;
+    return e.state.status === ALLOWANCE_STATUS.COMPLETE;
+  });
+  const cancelled = entries.filter((e) => {
+    if (e.type === 'transfer') return e.state.status === WORKFLOW_STATUS.CANCELLED;
+    return e.state.status === ALLOWANCE_STATUS.CANCELLED;
+  });
 
   return (
     <div style={{ color: P.bark }} className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 style={{ color: P.bark, fontSize: 26, fontWeight: 700 }}>Command Centre</h1>
-          <p style={{ color: P.olive, fontSize: 13, marginTop: 4 }}>TriggerDesk Execution Engine — Simulation Mode</p>
+          <h1 style={{ color: P.bark, fontSize: 26, fontWeight: 700 }}>Dashboard</h1>
+          <p style={{ color: P.olive, fontSize: 13, marginTop: 4 }}>
+            {connectionStatus === 'connected'
+              ? `Rialo DevNet — Block ${blockHeight?.toString() ?? '—'}`
+              : connectionStatus === 'connecting'
+                ? 'Connecting to DevNet...'
+                : 'Connection error'}
+          </p>
         </div>
-        <Link href="/rules/new" style={{ background: P.bark, color: P.cream, padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
-          + New Rule
-        </Link>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            style={{
+              background: P.bark,
+              color: P.cream,
+              padding: '10px 20px',
+              borderRadius: 10,
+              fontSize: 13,
+              fontWeight: 600,
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            + New Workflow
+          </button>
+          {showMenu && (
+            <div
+              style={{
+                position: 'absolute',
+                right: 0,
+                top: '100%',
+                marginTop: 8,
+                background: '#FFFEF8',
+                border: `1px solid ${P.sand}`,
+                borderRadius: 12,
+                padding: 8,
+                minWidth: 220,
+                zIndex: 50,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              }}
+            >
+              <Link
+                href="/workflows/new"
+                onClick={() => setShowMenu(false)}
+                style={{
+                  display: 'block',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  color: P.bark,
+                  fontSize: 13,
+                }}
+                className="hover:opacity-80"
+              >
+                <span style={{ fontWeight: 600 }}>Scheduled Transfer</span>
+                <span style={{ display: 'block', fontSize: 11, color: P.olive, marginTop: 2 }}>
+                  One-time future send with AFTER
+                </span>
+              </Link>
+              <Link
+                href="/workflows/new-allowance"
+                onClick={() => setShowMenu(false)}
+                style={{
+                  display: 'block',
+                  padding: '10px 14px',
+                  borderRadius: 8,
+                  textDecoration: 'none',
+                  color: P.bark,
+                  fontSize: 13,
+                }}
+                className="hover:opacity-80"
+              >
+                <span style={{ fontWeight: 600 }}>Recurring Allowance</span>
+                <span style={{ display: 'block', fontSize: 11, color: P.olive, marginTop: 2 }}>
+                  3 distributions at fixed interval
+                </span>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
+
+      {!wallet.publicKey && (
+        <Card>
+          <p style={{ color: P.olive, fontSize: 14, textAlign: 'center', padding: 20 }}>
+            Connect a wallet to create and manage workflows.
+          </p>
+        </Card>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Rules', value: rules.length,         color: P.bark },
-          { label: 'Active',      value: activeRules.length,   color: '#2E86C1' },
-          { label: 'Executed',    value: executedRules.length, color: '#1E8449' },
-          { label: 'Receipts',    value: receipts.length,      color: '#6C3483' },
+          { label: 'Total Workflows', value: entries.length, color: P.bark },
+          { label: 'Active', value: active.length, color: '#2E86C1' },
+          { label: 'Completed', value: completed.length, color: '#1E8449' },
+          { label: 'Cancelled', value: cancelled.length, color: '#C0392B' },
         ].map((s) => (
           <Card key={s.label}>
-            <p style={{ fontSize: 11, color: P.olive, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{s.label}</p>
+            <p style={{ fontSize: 11, color: P.olive, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              {s.label}
+            </p>
             <p style={{ fontSize: 36, fontWeight: 700, color: s.color, marginTop: 4 }}>{s.value}</p>
           </Card>
         ))}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Active Rules */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <p style={{ fontSize: 11, color: P.olive, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Active Rules</p>
-            <Link href="/rules/new" style={{ fontSize: 12, color: P.bark }}>+ Add</Link>
+      {/* Workflows list */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <p style={{ fontSize: 11, color: P.olive, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            On-Chain Workflows
+          </p>
+          <button
+            onClick={refresh}
+            style={{ fontSize: 12, color: P.bark, cursor: 'pointer', background: 'none', border: 'none' }}
+          >
+            Refresh
+          </button>
+        </div>
+
+        {loading ? (
+          <div
+            style={{
+              border: `1px dashed ${P.sand}`,
+              borderRadius: 14,
+              padding: 32,
+              textAlign: 'center',
+              color: P.olive,
+              fontSize: 14,
+            }}
+          >
+            Loading workflows from DevNet...
           </div>
-          {activeRules.length === 0 ? (
-            <div style={{ border: `1px dashed ${P.sand}`, borderRadius: 14, padding: 32, textAlign: 'center', color: P.olive, fontSize: 14 }}>
-              No active rules.{' '}
-              <Link href="/rules/new" style={{ color: P.bark, fontWeight: 600 }}>Create one →</Link>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {activeRules.map((r) => <RuleCard key={r.id} rule={r} />)}
-            </div>
-          )}
-        </div>
+        ) : entries.length === 0 ? (
+          <div
+            style={{
+              border: `1px dashed ${P.sand}`,
+              borderRadius: 14,
+              padding: 32,
+              textAlign: 'center',
+              color: P.olive,
+              fontSize: 14,
+            }}
+          >
+            No workflows found. Create one using the button above.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {entries.map((entry) => {
+              const { label, badge } = getUnifiedStatus(entry);
 
-        {/* Simulated State */}
-        <div className="space-y-4">
-          <p style={{ fontSize: 11, color: P.olive, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Simulated State</p>
-
-          <Card>
-            <p style={{ fontSize: 11, color: P.sand, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Portfolio</p>
-            <div className="flex justify-between" style={{ marginBottom: 8 }}>
-              <span style={{ color: P.olive, fontSize: 14 }}>Active ETH</span>
-              <span style={{ color: P.bark, fontWeight: 700 }}>{appState.portfolio.activeETH} ETH</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ color: P.olive, fontSize: 14 }}>Protected ETH</span>
-              <span style={{ color: '#1E8449', fontWeight: 700 }}>{appState.portfolio.protectedETH} ETH</span>
-            </div>
-          </Card>
-
-          <Card>
-            <p style={{ fontSize: 11, color: P.sand, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Invoice — {appState.invoice.id}</p>
-            <div className="flex justify-between" style={{ marginBottom: 8 }}>
-              <span style={{ color: P.olive, fontSize: 14 }}>Status</span>
-              <span style={{ color: appState.invoice.status === 'Payable' ? '#1E8449' : '#B7950B', fontWeight: 600 }}>{appState.invoice.status}</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ color: P.olive, fontSize: 14 }}>Amount</span>
-              <span style={{ color: P.bark, fontWeight: 600 }}>${appState.invoice.amount.toLocaleString()}</span>
-            </div>
-          </Card>
-
-          <Card>
-            <p style={{ fontSize: 11, color: P.sand, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Collateral</p>
-            <div className="flex justify-between" style={{ marginBottom: 8 }}>
-              <span style={{ color: P.olive, fontSize: 14 }}>Ratio</span>
-              <span style={{ color: appState.collateral.ratio < 130 ? '#C0392B' : '#1E8449', fontWeight: 600 }}>{appState.collateral.ratio}%</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ color: P.olive, fontSize: 14 }}>Status</span>
-              <span style={{ color: appState.collateral.status === 'Warning' ? '#CA6F1E' : '#1E8449', fontWeight: 600 }}>{appState.collateral.status}</span>
-            </div>
-          </Card>
-
-          <Card>
-            <p style={{ fontSize: 11, color: P.sand, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Escrow — {appState.escrow.id}</p>
-            <div className="flex justify-between" style={{ marginBottom: 8 }}>
-              <span style={{ color: P.olive, fontSize: 14 }}>Status</span>
-              <span style={{ color: appState.escrow.status === 'Unlocked' ? '#1E8449' : P.olive, fontWeight: 600 }}>{appState.escrow.status}</span>
-            </div>
-            <div className="flex justify-between">
-              <span style={{ color: P.olive, fontSize: 14 }}>Amount</span>
-              <span style={{ color: P.bark, fontWeight: 600 }}>${appState.escrow.amount.toLocaleString()}</span>
-            </div>
-          </Card>
-        </div>
+              return (
+                <Link
+                  key={entry.address}
+                  href={`/workflows/${entry.address}`}
+                  style={{
+                    display: 'block',
+                    background: '#FFFEF8',
+                    border: `1px solid ${P.sand}88`,
+                    borderRadius: 14,
+                    padding: '16px 20px',
+                    textDecoration: 'none',
+                    color: P.bark,
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p style={{ fontWeight: 600, fontSize: 14 }}>
+                        {entry.type === 'transfer' ? 'Scheduled Transfer' : 'Recurring Allowance'}
+                      </p>
+                      <p style={{ color: P.olive, fontSize: 12, marginTop: 4 }}>
+                        {entry.type === 'transfer'
+                          ? `${formatKelvinAsRlo(entry.state.amountKelvin)} RLO to ${entry.state.recipient.slice(0, 8)}...`
+                          : `${formatKelvinAsRlo(entry.state.amountKelvin)} RLO × 3 to ${entry.state.recipient.slice(0, 8)}...`}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      {entry.type === 'allowance' && (
+                        <div style={{ textAlign: 'right' }}>
+                          <p style={{ fontSize: 11, color: P.olive }}>Distributions</p>
+                          <p style={{ fontSize: 12, color: P.bark }}>
+                            {(entry.state as RecurringAllowanceState).distributionCount.toString()} / 3
+                          </p>
+                        </div>
+                      )}
+                      {entry.type === 'transfer' && (
+                        <div style={{ textAlign: 'right' }}>
+                          <p style={{ fontSize: 11, color: P.olive }}>
+                            {new Date(Number((entry.state as ScheduledTransferState).scheduledAt) * 1000).getTime() < Date.now()
+                              ? 'Scheduled for'
+                              : 'Fires at'}
+                          </p>
+                          <p style={{ fontSize: 12, color: P.bark }}>
+                            {new Date(Number((entry.state as ScheduledTransferState).scheduledAt) * 1000).toLocaleString()}
+                          </p>
+                        </div>
+                      )}
+                      <StatusBadge label={label} status={badge} />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
-
-      {/* Recent executions */}
-      {recentReceipts.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <p style={{ fontSize: 11, color: P.olive, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Recent Executions</p>
-            <Link href="/history" style={{ fontSize: 12, color: P.bark }}>View all →</Link>
-          </div>
-          <div className="space-y-2">
-            {recentReceipts.map((r) => (
-              <div key={r.id} style={{ background: '#FFFEF8', border: `1px solid ${P.sand}66`, borderRadius: 12, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <span style={{ color: P.bark, fontWeight: 600, fontSize: 14 }}>{r.ruleName}</span>
-                  <span style={{ color: P.olive, marginLeft: 10, fontSize: 12 }}>{r.reason}</span>
-                </div>
-                <div style={{ display: 'flex', gap: 16, fontSize: 12 }}>
-                  <span style={{ color: '#1E8449', fontWeight: 600, textTransform: 'uppercase' }}>{r.status}</span>
-                  <span style={{ color: P.sand }}>{formatTimestamp(r.timestamp)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Live feed */}
-      {Object.keys(feedState).length > 0 && (
-        <div>
-          <p style={{ fontSize: 11, color: P.olive, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 16 }}>Live Feed</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {Object.entries(feedState).map(([k, v]) => (
-              <div key={k} style={{ border: `1px solid ${P.sand}`, borderRadius: 12, padding: 14, background: P.cream + '44' }}>
-                <p style={{ fontSize: 11, color: P.olive, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{k}</p>
-                <p style={{ fontSize: 22, fontWeight: 700, color: P.bark, marginTop: 4 }}>{String(v)}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

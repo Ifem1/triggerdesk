@@ -1,0 +1,8 @@
+package rialo:triggerdesk-phase0@0.1.0;
+
+use rialo:primitives@0.1.0.{pubkey, lamports, timestamp, error};
+
+world triggerdesk-phase0 {
+    export get-state: func() -> result<_, error>;
+    export start: func(delay-secs: u64) -> result<_, error>;
+}
