@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -166,9 +167,10 @@ function Hero() {
       <nav className="absolute top-0 left-0 right-0 flex items-center justify-between px-8 py-5 z-20">
         <Link
           href="/"
-          className="font-bold tracking-widest text-sm uppercase"
+          className="flex items-center gap-2 font-bold tracking-widest text-sm uppercase"
           style={{ color: P.bark }}
         >
+          <Image src="/logo.svg" alt="" width={28} height={28} className="rounded-md" />
           TriggerDesk
         </Link>
         <div

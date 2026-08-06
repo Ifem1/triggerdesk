@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRialo } from '@/lib/rialo/provider';
@@ -101,7 +102,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         style={{ borderColor: P.sand + '66', background: 'rgba(254,252,243,0.92)' }}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center gap-6 h-14">
-          <Link href="/" className="font-bold tracking-widest text-sm uppercase" style={{ color: P.bark }}>
+          <Link href="/" className="flex items-center gap-2 font-bold tracking-widest text-sm uppercase" style={{ color: P.bark }}>
+            <Image src="/logo.svg" alt="" width={24} height={24} className="rounded-md" />
             TriggerDesk
           </Link>
           <nav className="flex gap-1 ml-4">
