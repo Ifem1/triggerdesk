@@ -69,6 +69,7 @@ export default function DashboardPage() {
   const { client, wallet, connectionStatus, blockHeight } = useRialo();
   const [entries, setEntries] = useState<UnifiedEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -83,8 +84,10 @@ export default function DashboardPage() {
         ...allowances.map((w) => ({ type: 'allowance' as const, ...w })),
       ];
       setEntries(unified);
+      setFetchFailed(false);
     } catch {
       setEntries([]);
+      setFetchFailed(true);
     }
     setLoading(false);
   }, [client]);
@@ -245,6 +248,24 @@ export default function DashboardPage() {
             }}
           >
             Loading workflows from DevNet...
+          </div>
+        ) : entries.length === 0 && (fetchFailed || connectionStatus === 'error') ? (
+          <div
+            style={{
+              border: '1px solid #F5B7B1',
+              background: '#FDEDEC',
+              borderRadius: 14,
+              padding: 32,
+              textAlign: 'center',
+              color: '#C0392B',
+              fontSize: 14,
+            }}
+          >
+            <p style={{ fontWeight: 600, marginBottom: 4 }}>Can&apos;t reach Rialo DevNet</p>
+            <p style={{ fontSize: 13 }}>
+              This isn&apos;t necessarily an empty list — the RPC connection may be down.
+              Check your network and try refreshing.
+            </p>
           </div>
         ) : entries.length === 0 ? (
           <div

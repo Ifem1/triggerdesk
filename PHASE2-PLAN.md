@@ -53,11 +53,15 @@ Cheap win. Contract-side `cancel` functions already exist per HANDOVER.md — th
 - Add a "Cancel" button on the workflow detail page (`app/workflows/[address]/page.tsx`), visible only when status is cancellable (e.g. `pending`/`active`, not already `claimed`/`complete`/`cancelled`).
 - Handle the on-chain effect: does `cancel` return escrowed funds to the creator? If Step 1 isn't done yet, cancel just flips status — decide whether that's acceptable in the interim or whether cancel should be sequenced *after* Step 1 so it also handles refunding real held funds correctly.
 
-**Complexity:** Genuinely low — the most mechanical of the five, assuming the contract-side function is solid. Mostly UI wiring + a confirmation dialog (destructive action, should confirm before firing).
+**Complexity:** Originally assessed as low. **Correction after investigation (2026-08-07): this is not frontend-only.** Checked both compiled manifests (`programs/scheduled-transfer/wit/scheduled-transfer-manifest.json`, `programs/recurring-allowance/wit/recurring-allowance-manifest.json`) against `lib.rs` — `cancel` is a real `terminating fn` in both programs' Rust source, but **neither manifest lists an instruction entry for it**. Only `get_state` (enum_variant 0), the AFTER/timer callback (enum_variant 1), and `schedule`/`setup` (enum_variant 2) are documented as callable instructions. Confirmed via git history that the manifest and `lib.rs` were committed together in `59ab0bc` — this isn't a stale-manifest-lagging-behind-source issue, the manifest generator itself didn't emit an instruction for `cancel`.
 
-**Dependency note:** If Step 1 isn't done first, "cancel" only cancels the bookkeeping, not any actual escrowed funds — worth flagging to users so it's not misleading.
+This means there is no reliable evidence `cancel` is actually callable on the currently deployed program binaries. Building a "Cancel" button would require guessing an instruction discriminant/encoding and firing it at a live (DevNet) program — not something to do without verification, since a wrong instruction could be rejected or, worse, silently hit an unintended code path.
 
-### Step 3 — Error UX
+**Revised path:** Step 2 now converges with Step 1 — both need the WSL/Rust/Cargo toolchain to (a) confirm whether `cancel` compiles into a real instruction and regenerate the manifest, or (b) if it doesn't, add proper instruction wiring to `lib.rs` and redeploy. Not plannable as a quick frontend win until that investigation happens.
+
+**Dependency note:** If Step 1 isn't done first, "cancel" (once actually wired) only cancels the bookkeeping, not any actual escrowed funds — worth flagging to users so it's not misleading.
+
+### Step 3 — Error UX ✅ Done (2026-08-07)
 
 Also cheap, frontend-only. Meaningfully improves how the app feels in any demo or review — right now DevNet failures just show perpetual loading states, per HANDOVER.md.
 
@@ -72,18 +76,21 @@ Also cheap, frontend-only. Meaningfully improves how the app feels in any demo o
 
 **Sequencing note:** worth doing early — it's cheap and directly affects whether bugs introduced in Step 1 get caught during testing or silently swallowed.
 
-**Then reassess, informed by what Steps 1–3 reveal:**
+**Implemented (2026-08-07):**
+- `RialoProvider.requestAirdrop` now catches failures instead of throwing uncaught — exposes `airdropStatus` (`idle`/`pending`/`success`/`error`) and `airdropError` via context. Rate-limit errors get a friendly message; other failures show the raw error.
+- `WalletButton` (nav) surfaces airdrop pending/error state directly on the button plus an inline error popover.
+- Dashboard and History pages now distinguish "genuinely zero workflows" from "can't reach DevNet" — `listWorkflows`/`listAllowanceWorkflows` swallow errors internally and return `[]`, so the real signal is `connectionStatus === 'error'` (already tracked centrally in the provider via periodic `getBlockHeight()` polling). Both pages now show a distinct red "Can't reach Rialo DevNet" banner instead of a misleading "No workflows found" empty state when that's the case.
+- The `executed: false` / thrown-error handling in `createScheduledTransfer` and `createRecurringAllowance` was already correct (throws with the on-chain error detail) and the `new workflow` forms already catch and display it — audited, no changes needed there.
 
-### Step 4 — Investigate the timestamp bug
+**Not done:** deeper retry/backoff logic for transient RPC blips — current behavior is "fail visibly, let the user hit Refresh," which is enough for a DevNet app at this stage.
 
-Time-box this rather than committing to a fix up front — determine whether `unix_timestamp()` returning 0 is fixable at the Venus/CDK layer or is a DevNet platform limitation. Decide to fix or formally park based on findings.
+### Step 4 — Timestamp bug ✅ Done (2026-08-07), via workaround, not root-cause fix
 
-**What "investigate" actually means, concretely:**
-- Check whether this is a known Rialo DevNet issue (Rialo's dev community/Discord/docs, or their GitHub issues) — if it's a platform-side clock sysvar bug, there's nothing to fix locally.
-- If not platform-side, check whether the Venus DSL's `unix_timestamp()` call is being invoked correctly, or whether there's a manifest/ABI issue in how the program reads the clock sysvar.
-- Low-effort alternative that sidesteps the investigation entirely: have the **frontend capture and display the timestamp client-side** at transaction-submission time, instead of relying on the on-chain sysvar for display purposes. Doesn't fix the root cause, but makes the UI show correct dates regardless.
+**What was actually done:** implemented the frontend workaround recommended above rather than the platform investigation — didn't sink time into root-causing Rialo DevNet's clock sysvar behavior. Added `lib/rialo/client-timestamps.ts`: captures `Date.now()` client-side at the moment a workflow is submitted, keyed by workflow PDA address, stored in `localStorage`. `createScheduledTransfer` and `createRecurringAllowance` both now call `saveClientCreatedAt()` right after a successful submission. The workflow detail page's "Created" field (Recurring Allowance only — Scheduled Transfer's detail view doesn't display a created-at field, only Scheduled At) now calls `resolveCreatedAt()`, which prefers the on-chain timestamp when it's non-zero and falls back to the locally-captured value, or a clear "Unknown (created in another browser)" label if neither is available.
 
-**Recommendation:** don't sink real time into root-causing a DevNet platform quirk. The frontend workaround is probably a 30-minute fix that makes the symptom disappear, versus an open-ended investigation into someone else's infrastructure. Default to the workaround unless there's a specific reason to want the root cause.
+**Known limitation of the workaround (by design, documented in the module):** display-only, lost if `localStorage` is cleared or the workflow is viewed from a different browser/session than the one that created it. Acceptable tradeoff for a cosmetic field — doesn't touch on-chain state or correctness.
+
+**Original investigation (whether `unix_timestamp()` returning 0 is a Venus/CDK bug or DevNet platform limitation) was not performed** — parked, since the workaround fully resolves the user-visible symptom without it.
 
 ### Step 5 — More templates (Conditional Swap, Escrow Release)
 

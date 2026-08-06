@@ -8,6 +8,7 @@ import {
 } from '@rialo/ts-cdk';
 import { SCHEDULED_TRANSFER_PROGRAM_ID, WORKFLOW_STATUS } from './constants';
 import type { ScheduledTransferState, CreateScheduledTransferParams } from './types';
+import { saveClientCreatedAt } from './client-timestamps';
 
 const PROGRAM_ID = PublicKey.fromString(SCHEDULED_TRANSFER_PROGRAM_ID);
 const SYSTEM_PROGRAM = PublicKey.fromString('11111111111111111111111111111111');
@@ -118,9 +119,12 @@ export async function createScheduledTransfer(
     );
   }
 
+  const workflowPdaAddress = workflowPda.toString();
+  saveClientCreatedAt(workflowPdaAddress);
+
   return {
     signature: result.signature.toString(),
-    workflowPda: workflowPda.toString(),
+    workflowPda: workflowPdaAddress,
     slug,
   };
 }

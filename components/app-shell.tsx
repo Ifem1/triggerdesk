@@ -22,7 +22,15 @@ const P = {
 };
 
 function WalletButton() {
-  const { wallet, connectionStatus, connectWallet, disconnectWallet, requestAirdrop } = useRialo();
+  const {
+    wallet,
+    connectionStatus,
+    connectWallet,
+    disconnectWallet,
+    requestAirdrop,
+    airdropStatus,
+    airdropError,
+  } = useRialo();
 
   if (!wallet.publicKey) {
     return (
@@ -40,15 +48,28 @@ function WalletButton() {
   const balance = wallet.balanceKelvin !== null ? formatKelvinAsRlo(wallet.balanceKelvin) : '—';
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3" style={{ position: 'relative' }}>
       <button
         onClick={requestAirdrop}
-        className="px-3 py-1 rounded-lg text-xs transition-all hover:opacity-80 border"
-        style={{ borderColor: P.sand + '88', color: P.olive }}
+        disabled={airdropStatus === 'pending'}
+        className="px-3 py-1 rounded-lg text-xs transition-all hover:opacity-80 border disabled:opacity-50"
+        style={{
+          borderColor: airdropStatus === 'error' ? '#F5B7B1' : P.sand + '88',
+          color: airdropStatus === 'error' ? '#C0392B' : P.olive,
+        }}
         title="Request 1 RLO airdrop (DevNet only)"
       >
-        Airdrop
+        {airdropStatus === 'pending' ? 'Requesting...' : airdropStatus === 'error' ? 'Airdrop failed' : 'Airdrop'}
       </button>
+      {airdropStatus === 'error' && airdropError && (
+        <div
+          role="alert"
+          className="absolute top-full left-0 mt-2 z-50 text-xs px-3 py-2 rounded-lg border shadow-sm"
+          style={{ background: '#FDEDEC', borderColor: '#F5B7B1', color: '#C0392B', maxWidth: 260 }}
+        >
+          {airdropError}
+        </div>
+      )}
       <div className="flex items-center gap-2">
         <span
           className="w-2 h-2 rounded-full"

@@ -23,6 +23,8 @@ interface RialoContextValue {
   disconnectWallet: () => void;
   refreshBalance: () => Promise<void>;
   requestAirdrop: () => Promise<void>;
+  airdropStatus: 'idle' | 'pending' | 'success' | 'error';
+  airdropError: string | null;
 }
 
 const RialoContext = createContext<RialoContextValue | null>(null);
@@ -37,6 +39,8 @@ export function RialoProvider({ children }: { children: React.ReactNode }) {
     isDevnet: true,
   });
   const [blockHeight, setBlockHeight] = useState<bigint | null>(null);
+  const [airdropStatus, setAirdropStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [airdropError, setAirdropError] = useState<string | null>(null);
 
   useEffect(() => {
     const restored = loadKeypairFromSession();
@@ -103,11 +107,24 @@ export function RialoProvider({ children }: { children: React.ReactNode }) {
 
   const requestAirdrop = useCallback(async () => {
     if (!keypair) return;
-    await client.requestAirdropAndConfirm(
-      keypair.publicKey,
-      BigInt(KELVIN_PER_RLO),
-    );
-    await refreshBalance();
+    setAirdropStatus('pending');
+    setAirdropError(null);
+    try {
+      await client.requestAirdropAndConfirm(
+        keypair.publicKey,
+        BigInt(KELVIN_PER_RLO),
+      );
+      await refreshBalance();
+      setAirdropStatus('success');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Airdrop failed';
+      setAirdropError(
+        msg.toLowerCase().includes('rate') || msg.toLowerCase().includes('limit')
+          ? 'DevNet airdrop is rate-limited — try again in a moment.'
+          : `Airdrop failed: ${msg}`,
+      );
+      setAirdropStatus('error');
+    }
   }, [client, keypair, refreshBalance]);
 
   return (
@@ -122,6 +139,8 @@ export function RialoProvider({ children }: { children: React.ReactNode }) {
         disconnectWallet,
         refreshBalance,
         requestAirdrop,
+        airdropStatus,
+        airdropError,
       }}
     >
       {children}

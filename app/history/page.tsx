@@ -54,9 +54,10 @@ function isTerminal(entry: UnifiedEntry): boolean {
 }
 
 export default function HistoryPage() {
-  const { client } = useRialo();
+  const { client, connectionStatus } = useRialo();
   const [entries, setEntries] = useState<UnifiedEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchFailed, setFetchFailed] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -69,8 +70,10 @@ export default function HistoryPage() {
         ...allowances.map((w) => ({ type: 'allowance' as const, ...w })),
       ];
       setEntries(unified);
+      setFetchFailed(false);
     } catch {
       setEntries([]);
+      setFetchFailed(true);
     }
     setLoading(false);
   }, [client]);
@@ -112,6 +115,22 @@ export default function HistoryPage() {
           }}
         >
           Loading history from DevNet...
+        </div>
+      ) : terminal.length === 0 && (fetchFailed || connectionStatus === 'error') ? (
+        <div
+          style={{
+            border: '1px solid #F5B7B1',
+            background: '#FDEDEC',
+            borderRadius: 14,
+            padding: 56,
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ color: '#C0392B', fontSize: 15, fontWeight: 600 }}>Can&apos;t reach Rialo DevNet</p>
+          <p style={{ color: '#C0392B', fontSize: 13, marginTop: 8 }}>
+            This isn&apos;t necessarily empty history — the RPC connection may be down.
+            Check your network and try refreshing.
+          </p>
         </div>
       ) : terminal.length === 0 ? (
         <div

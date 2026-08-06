@@ -20,6 +20,7 @@ import {
   RECURRING_ALLOWANCE_PROGRAM_ID,
 } from '@/lib/rialo/constants';
 import type { ScheduledTransferState, RecurringAllowanceState } from '@/lib/rialo/types';
+import { resolveCreatedAt } from '@/lib/rialo/client-timestamps';
 import { PublicKey } from '@rialo/ts-cdk';
 
 const P = { lightest: '#FEFCF3', cream: '#FAE8B4', sand: '#CBBD93', olive: '#80775C', bark: '#574A24' };
@@ -253,7 +254,7 @@ export default function WorkflowDetailPage() {
         </p>
 
         {workflowType === 'recurring-allowance'
-          ? renderAllowanceDetails(state as RecurringAllowanceState)
+          ? renderAllowanceDetails(state as RecurringAllowanceState, address)
           : renderTransferDetails(state as ScheduledTransferState)}
       </div>
 
@@ -336,8 +337,8 @@ function renderTransferDetails(state: ScheduledTransferState) {
   );
 }
 
-function renderAllowanceDetails(state: RecurringAllowanceState) {
-  const createdDate = new Date(Number(state.createdAt) * 1000);
+function renderAllowanceDetails(state: RecurringAllowanceState, address: string) {
+  const createdDate = resolveCreatedAt(address, state.createdAt);
   const intervalMin = Number(state.intervalSeconds) / 60;
   const perDistribution = formatKelvinAsRlo(state.amountKelvin);
   const totalDist = formatKelvinAsRlo(state.totalDistributed);
@@ -349,7 +350,10 @@ function renderAllowanceDetails(state: RecurringAllowanceState) {
       <DetailRow label="Interval" value={`${intervalMin} minutes`} />
       <DetailRow label="Distributions" value={`${state.distributionCount} / 3`} />
       <DetailRow label="Total Distributed" value={`${totalDist} RLO`} />
-      <DetailRow label="Created" value={createdDate.toLocaleString()} />
+      <DetailRow
+        label="Created"
+        value={createdDate ? createdDate.toLocaleString() : 'Unknown (created in another browser)'}
+      />
       <DetailRow label="Status" value={getAllowanceStatusLabel(state.status)} />
     </>
   );
