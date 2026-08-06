@@ -10,7 +10,7 @@ export function getRialoClient(): RialoClient {
       : 'https://devnet.rialo.io:4101';
 
     clientInstance = createRialoClient({
-      chain: { rpcUrl, name: 'devnet', coinType: 756 },
+      chain: { id: 'rialo:devnet', rpcUrl, name: 'devnet' },
     });
   }
   return clientInstance;

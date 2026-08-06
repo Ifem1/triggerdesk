@@ -36,7 +36,7 @@ async function multiAccountSlug(
 function deriveWorkflowPda(
   payerPubkey: PublicKey,
   slug: Uint8Array,
-): [PublicKey, number] {
+): readonly [PublicKey, number] {
   return PublicKey.findProgramAddress(
     ['rialo_workflow', payerPubkey.toBytes(), slug],
     PROGRAM_ID,
@@ -46,7 +46,7 @@ function deriveWorkflowPda(
 async function deriveSubscriptionPda(
   payerPubkey: PublicKey,
   workflowPda: PublicKey,
-): Promise<[PublicKey, number]> {
+): Promise<readonly [PublicKey, number]> {
   const slug = await multiAccountSlug(workflowPda, 0, 4);
   return PublicKey.findProgramAddress(
     ['rialo_subscribe', payerPubkey.toBytes(), slug],
@@ -130,7 +130,7 @@ export function decodeWorkflowState(data: Uint8Array): ScheduledTransferState {
 
   const discriminator = view.getBigUint64(0, true);
   const recipientBytes = data.slice(8, 40);
-  const recipient = new PublicKey(recipientBytes).toString();
+  const recipient = PublicKey.fromBytes(recipientBytes).toString();
   const amountKelvin = view.getBigUint64(40, true);
   const scheduledAt = view.getBigUint64(48, true);
   const createdAt = view.getBigUint64(56, true);
@@ -166,7 +166,7 @@ export async function listWorkflows(
   payerPubkey?: PublicKey,
 ): Promise<Array<{ address: string; state: ScheduledTransferState }>> {
   try {
-    const [accounts] = await client.getAccountsByOwner(PROGRAM_ID);
+    const [accounts] = await client.getAccountsByOwner(PROGRAM_ID, undefined, undefined);
     const workflows: Array<{ address: string; state: ScheduledTransferState }> = [];
 
     for (const entry of accounts) {

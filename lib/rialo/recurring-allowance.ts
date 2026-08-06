@@ -36,7 +36,7 @@ async function multiAccountSlug(
 function deriveWorkflowPda(
   payerPubkey: PublicKey,
   slug: Uint8Array,
-): [PublicKey, number] {
+): readonly [PublicKey, number] {
   return PublicKey.findProgramAddress(
     ['rialo_workflow', payerPubkey.toBytes(), slug],
     PROGRAM_ID,
@@ -47,7 +47,7 @@ async function deriveSubscriptionPda(
   payerPubkey: PublicKey,
   workflowPda: PublicKey,
   index: number,
-): Promise<[PublicKey, number]> {
+): Promise<readonly [PublicKey, number]> {
   const slug = await multiAccountSlug(workflowPda, 0, index);
   return PublicKey.findProgramAddress(
     ['rialo_subscribe', payerPubkey.toBytes(), slug],
@@ -135,7 +135,7 @@ export function decodeAllowanceState(data: Uint8Array): RecurringAllowanceState 
 
   const discriminator = view.getBigUint64(0, true);
   const recipientBytes = data.slice(8, 40);
-  const recipient = new PublicKey(recipientBytes).toString();
+  const recipient = PublicKey.fromBytes(recipientBytes).toString();
   const amountKelvin = view.getBigUint64(40, true);
   const intervalSeconds = view.getBigUint64(48, true);
   const totalDistributed = view.getBigUint64(56, true);
@@ -181,7 +181,7 @@ export async function listAllowanceWorkflows(
   client: RialoClient,
 ): Promise<Array<{ address: string; state: RecurringAllowanceState }>> {
   try {
-    const [accounts] = await client.getAccountsByOwner(PROGRAM_ID);
+    const [accounts] = await client.getAccountsByOwner(PROGRAM_ID, undefined, undefined);
     const workflows: Array<{ address: string; state: RecurringAllowanceState }> = [];
 
     for (const entry of accounts) {

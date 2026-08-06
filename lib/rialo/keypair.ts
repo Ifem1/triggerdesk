@@ -8,7 +8,7 @@ export function generateEphemeralKeypair(): Keypair {
 
 export function saveKeypairToSession(keypair: Keypair): void {
   if (typeof window === 'undefined') return;
-  const bytes = Array.from(keypair.secretKey);
+  const bytes = Array.from(keypair.secretKeyBytes());
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(bytes));
 }
 
