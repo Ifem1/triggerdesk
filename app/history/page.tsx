@@ -14,6 +14,7 @@ import {
 } from '@/lib/rialo/recurring-allowance';
 import { WORKFLOW_STATUS, ALLOWANCE_STATUS } from '@/lib/rialo/constants';
 import type { ScheduledTransferState, RecurringAllowanceState } from '@/lib/rialo/types';
+import { getMyWorkflowAddresses } from '@/lib/rialo/my-workflows';
 
 const P = { lightest: '#FEFCF3', cream: '#FAE8B4', sand: '#CBBD93', olive: '#80775C', bark: '#574A24' };
 
@@ -54,7 +55,7 @@ function isTerminal(entry: UnifiedEntry): boolean {
 }
 
 export default function HistoryPage() {
-  const { client, connectionStatus } = useRialo();
+  const { client, connectionStatus, wallet } = useRialo();
   const [entries, setEntries] = useState<UnifiedEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchFailed, setFetchFailed] = useState(false);
@@ -65,9 +66,13 @@ export default function HistoryPage() {
         listWorkflows(client),
         listAllowanceWorkflows(client),
       ]);
+      // These two calls return every workflow on the program, from every
+      // wallet that's ever used it - filter down to just the connected
+      // wallet's own workflows. See lib/rialo/my-workflows.ts.
+      const mine = wallet.publicKey ? getMyWorkflowAddresses(wallet.publicKey) : new Set<string>();
       const unified: UnifiedEntry[] = [
-        ...transfers.map((w) => ({ type: 'transfer' as const, ...w })),
-        ...allowances.map((w) => ({ type: 'allowance' as const, ...w })),
+        ...transfers.filter((w) => mine.has(w.address)).map((w) => ({ type: 'transfer' as const, ...w })),
+        ...allowances.filter((w) => mine.has(w.address)).map((w) => ({ type: 'allowance' as const, ...w })),
       ];
       setEntries(unified);
       setFetchFailed(false);
@@ -76,7 +81,7 @@ export default function HistoryPage() {
       setFetchFailed(true);
     }
     setLoading(false);
-  }, [client]);
+  }, [client, wallet.publicKey]);
 
   useEffect(() => {
     refresh();

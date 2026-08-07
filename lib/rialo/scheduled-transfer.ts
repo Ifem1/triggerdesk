@@ -9,6 +9,7 @@ import {
 import { SCHEDULED_TRANSFER_PROGRAM_ID, WORKFLOW_STATUS } from './constants';
 import type { ScheduledTransferState, CreateScheduledTransferParams } from './types';
 import { saveClientCreatedAt } from './client-timestamps';
+import { recordMyWorkflow } from './my-workflows';
 
 const PROGRAM_ID = PublicKey.fromString(SCHEDULED_TRANSFER_PROGRAM_ID);
 const SYSTEM_PROGRAM = PublicKey.fromString('11111111111111111111111111111111');
@@ -129,6 +130,7 @@ export async function createScheduledTransfer(
 
   const workflowPdaAddress = workflowPda.toString();
   saveClientCreatedAt(workflowPdaAddress);
+  recordMyWorkflow(payer.publicKey.toString(), workflowPdaAddress);
 
   return {
     signature: result.signature.toString(),
@@ -173,9 +175,13 @@ export async function getWorkflowState(
   }
 }
 
+// NOTE: this returns every Scheduled Transfer workflow on the program, not
+// just the connected wallet's - the on-chain state has no payer/creator
+// field to filter by server-side. Callers that want "my workflows" should
+// filter the result using lib/rialo/my-workflows.ts's
+// getMyWorkflowAddresses(). See that module's doc comment for why.
 export async function listWorkflows(
   client: RialoClient,
-  payerPubkey?: PublicKey,
 ): Promise<Array<{ address: string; state: ScheduledTransferState }>> {
   try {
     const [accounts] = await client.getAccountsByOwner(PROGRAM_ID, undefined, undefined);

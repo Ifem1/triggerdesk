@@ -9,6 +9,7 @@ import {
 import { RECURRING_ALLOWANCE_PROGRAM_ID, ALLOWANCE_STATUS } from './constants';
 import type { RecurringAllowanceState, CreateRecurringAllowanceParams } from './types';
 import { saveClientCreatedAt } from './client-timestamps';
+import { recordMyWorkflow } from './my-workflows';
 
 const PROGRAM_ID = PublicKey.fromString(RECURRING_ALLOWANCE_PROGRAM_ID);
 const SYSTEM_PROGRAM = PublicKey.fromString('11111111111111111111111111111111');
@@ -134,6 +135,7 @@ export async function createRecurringAllowance(
 
   const workflowPdaAddress = workflowPda.toString();
   saveClientCreatedAt(workflowPdaAddress);
+  recordMyWorkflow(payer.publicKey.toString(), workflowPdaAddress);
 
   return {
     signature: result.signature.toString(),
