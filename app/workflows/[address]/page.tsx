@@ -326,12 +326,19 @@ function renderTransferDetails(state: ScheduledTransferState) {
     ? 'Already passed'
     : `${Math.ceil((scheduledDate.getTime() - Date.now()) / 60_000)} minutes`;
 
+  // Once the chain reports a status past Pending, the AFTER callback has
+  // already fired - the on-chain status is ground truth. A client-clock-
+  // derived "time remaining" countdown at that point is misleading (device
+  // clock drift can make the chain look ahead of or behind local time), so
+  // only show it while still genuinely waiting on the callback.
+  const showCountdown = state.status === WORKFLOW_STATUS.PENDING;
+
   return (
     <>
       <DetailRow label="Recipient" value={state.recipient} mono />
       <DetailRow label="Amount" value={`${formatKelvinAsRlo(state.amountKelvin)} RLO`} />
       <DetailRow label="Scheduled At" value={scheduledDate.toLocaleString()} />
-      <DetailRow label="Time Remaining" value={timeUntil} />
+      {showCountdown && <DetailRow label="Time Remaining" value={timeUntil} />}
       <DetailRow label="Status" value={getStatusLabel(state.status)} />
     </>
   );
