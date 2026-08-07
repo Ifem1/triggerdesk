@@ -13,6 +13,9 @@ import { saveClientCreatedAt } from './client-timestamps';
 const PROGRAM_ID = PublicKey.fromString(RECURRING_ALLOWANCE_PROGRAM_ID);
 const SYSTEM_PROGRAM = PublicKey.fromString('11111111111111111111111111111111');
 const SUBSCRIBER_INTERFACE = PublicKey.fromString('Subscriber111111111111111111111111111111111');
+// Absorbs client clock drift ahead of the DevNet validator's clock, which
+// otherwise gets a transaction rejected with TimestampInFuture.
+const CLOCK_SKEW_BUFFER_MS = 60_000;
 
 function generateRandomSlug(): Uint8Array {
   const slug = new Uint8Array(32);
@@ -108,9 +111,14 @@ export async function createRecurringAllowance(
 
   const configHashPrefix = await client.getConfigHashPrefix();
 
+  // validFrom is only used for replay protection/auditing (per SDK docs), not
+  // scheduling logic - a small backward buffer absorbs client clock drift
+  // that would otherwise get rejected as TimestampInFuture by the validator.
+  const validFrom = BigInt(Date.now() - CLOCK_SKEW_BUFFER_MS);
+
   const tx = TransactionBuilder.create()
     .setPayer(payer.publicKey)
-    .setValidFrom(BigInt(Date.now()))
+    .setValidFrom(validFrom)
     .setConfigHashPrefix(configHashPrefix)
     .addInstruction(instruction)
     .build();
