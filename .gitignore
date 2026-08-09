@@ -40,6 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Rialo remote build/test evidence (may contain large logs and artifacts)
+.rialo-bootstrap/
+.rialo-evidence/
+
 # rust build artifacts
 **/target/
 

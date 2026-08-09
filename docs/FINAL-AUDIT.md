@@ -60,7 +60,7 @@ cancel instruction, and has no recipient/refund balance-delta E2E evidence.
 
 ### Current Rialo/Venus funds-path verification
 
-Missing proof: Venus 0.12.2 generated handlers have not been shown to expose the
+Missing proof: Venus 0.12.2 generated handlers have not yet been shown to expose the
 explicit account context and PDA signer path required for safe vault-to-recipient
 native transfers and partial refunds. Lower-level Rialo 0.12.2 documentation does
 expose CPI and `invoke_signed`, so this is not claimed to prove that Rialo can
@@ -69,8 +69,11 @@ or official raw-program pattern is compiled and inspected.
 
 Tested: V1 source, WIT, manifests, deployed executable bytes, installed TypeScript
 CDK source, published Rialo crate documentation, DevNet accounts, and documented
-toolchain installation path. The machine has no Rust/Cargo, WSL, or Docker, and
-`rialoman.rialo.io` failed DNS resolution during the audit.
+toolchain installation path. The Windows machine has no Rust/Cargo, WSL, or
+Docker, which is now treated only as a workstation limitation. A persistent
+Ubuntu bootstrap and official 0.12.2 source-build fallback are checked in; remote
+execution is pending. The obsolete `rialoman.rialo.io` host failed DNS, while
+current official rialoman documentation points to Rialo's S3 installer.
 
 Remaining when available: compile expanded code, define exact account lists and
 PDA seeds, add V2 implementations/tests, deploy new program IDs, then run balance
@@ -100,7 +103,7 @@ by local code.
 | `npm test -- --runInBand` | Pass; 4 suites, 26 tests |
 | `npm run build` | Pass; Next.js 16.3.0, 12 routes including health/RPC |
 | `npm audit --audit-level=high` | Pass; zero known vulnerabilities |
-| Venus/Rust source build | Blocked: supported compiler environment unavailable |
+| Venus/Rust source build | Pending on persistent Ubuntu; reproducible bootstrap prepared |
 | Generated V2 manifests | Not produced |
 | DevNet V2 deployment/E2E | Not performed |
 
@@ -167,4 +170,3 @@ are not complete.
 Overall: **3.3/10 production readiness**. A DevNet native-automation prototype
 score is higher, but it cannot be called a completed financial product until the
 funds-path acceptance tests pass.
-

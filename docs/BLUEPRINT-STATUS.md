@@ -14,7 +14,8 @@ supported by repository, test, deployment, or external-blocker evidence.
 - [x] Current checked-in artifact hashes match deployed DevNet payloads.
 - [x] Current deployed program IDs verified executable.
 - [x] `cancel` interface behavior audited without guessing: not externally exposed by V1 artifacts.
-- [ ] Reproduce Venus builds from source — environment blocked; see `docs/KNOWN-LIMITATIONS.md`.
+- [ ] Reproduce Venus builds from source — persistent Ubuntu bootstrap prepared;
+  remote execution and hash comparison pending.
 
 ## Milestone 2 — financial state and escrow design
 
@@ -34,8 +35,8 @@ supported by repository, test, deployment, or external-blocker evidence.
 - [ ] Recurring Allowance escrow/installments/refund.
 - [ ] Adversarial and DevNet balance-delta evidence.
 
-Status: **BLOCKED BY CURRENT RIALO/VENUS INTERFACE AND LOCAL TOOLCHAIN
-AVAILABILITY**. No simulation or keeper substitute was introduced.
+Status: **ACTIVE REMOTE LINUX FUNDS-PATH WORK**. Windows tool availability is not
+a project blocker. No simulation or keeper substitute was introduced.
 
 ## Feasible cross-cutting work completed
 
