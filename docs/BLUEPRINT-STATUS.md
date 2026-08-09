@@ -14,8 +14,9 @@ supported by repository, test, deployment, or external-blocker evidence.
 - [x] Current checked-in artifact hashes match deployed DevNet payloads.
 - [x] Current deployed program IDs verified executable.
 - [x] `cancel` interface behavior audited without guessing: not externally exposed by V1 artifacts.
-- [ ] Reproduce Venus builds from source — persistent Ubuntu bootstrap prepared;
-  remote execution and hash comparison pending.
+- [x] Reproduce both Venus V1 builds from source; WIT/manifests are byte-identical
+  and fresh PolkaVM artifacts exactly match deployed hashes under the recorded
+  historical Cargo source path. See `docs/V1-REPRODUCTION.md`.
 
 ## Milestone 2 — financial state and escrow design
 
