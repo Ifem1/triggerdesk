@@ -7,6 +7,7 @@ readonly EVIDENCE_DIR="${RIALO_EVIDENCE_DIR:-$ROOT/.rialo-evidence/v1}"
 
 mkdir -p "$EVIDENCE_DIR"
 exec > >(tee "$EVIDENCE_DIR/verify.log") 2>&1
+export PATH="$HOME/.cargo/bin:${XDG_DATA_HOME:-$HOME/.local/share}/rialo/bin:$PATH"
 
 printf 'commit=%s\n' "$(git -C "$ROOT" rev-parse HEAD)"
 printf 'os=%s\n' "$(. /etc/os-release && echo "$PRETTY_NAME")"

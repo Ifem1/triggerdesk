@@ -14,6 +14,7 @@ readonly LOG_FILE="$LOG_DIR/bootstrap.log"
 
 mkdir -p "$LOG_DIR"
 exec > >(tee -a "$LOG_FILE") 2>&1
+export PATH="$HOME/.cargo/bin:${XDG_DATA_HOME:-$HOME/.local/share}/rialo/bin:$PATH"
 
 step() { printf '\n==> %s\n' "$*"; }
 have() { command -v "$1" >/dev/null 2>&1; }
@@ -57,7 +58,6 @@ step "Install Rust through the official rustup installer"
 if ! have rustup; then
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
 fi
-export PATH="$HOME/.cargo/bin:${XDG_DATA_HOME:-$HOME/.local/share}/rialo/bin:$PATH"
 rustup toolchain install stable --profile minimal
 rustup default stable
 rustc --version --verbose
