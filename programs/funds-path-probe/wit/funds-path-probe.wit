@@ -1,0 +1,8 @@
+package rialo:funds-path-probe@0.1.0;
+
+use rialo:primitives@0.1.0.{pubkey, lamports, timestamp, error};
+
+world funds-path-probe {
+    export get-state: func() -> result<_, error>;
+    export setup: func(recipient: pubkey, vault: pubkey, amount: u64, execute-at: u64, use-wrong-seed: bool) -> result<_, error>;
+}
