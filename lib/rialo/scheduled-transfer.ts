@@ -140,6 +140,9 @@ export async function createScheduledTransfer(
 }
 
 export function decodeWorkflowState(data: Uint8Array): ScheduledTransferState {
+  if (data.byteLength < 65) {
+    throw new Error(`Scheduled Transfer V1 account is too short: ${data.byteLength} bytes`);
+  }
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
 
   const discriminator = view.getBigUint64(0, true);
@@ -149,6 +152,10 @@ export function decodeWorkflowState(data: Uint8Array): ScheduledTransferState {
   const scheduledAt = view.getBigUint64(48, true);
   const createdAt = view.getBigUint64(56, true);
   const status = data[64];
+
+  if (!(Object.values(WORKFLOW_STATUS) as number[]).includes(status)) {
+    throw new Error(`Unknown Scheduled Transfer V1 status: ${status}`);
+  }
 
   return { discriminator, recipient, amountKelvin, scheduledAt, createdAt, status };
 }

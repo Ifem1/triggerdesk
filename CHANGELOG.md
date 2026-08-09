@@ -12,4 +12,5 @@ separately.
 - Added explicit typechecking and continuous integration.
 - Corrected documentation so V1 callbacks are not described as RLO transfers.
 - Removed the production build's dependency on downloading Google Fonts.
-
+- Removed remaining runtime copy that described V1 counters as payments.
+- Added defensive V1 account length/status validation and RPC boundary tests.

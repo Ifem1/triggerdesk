@@ -68,6 +68,22 @@ describe('current Rialo workflow account decoding', () => {
     expect(getAllowanceStatusLabel(255)).toBe('Unknown (255)');
   });
 
+  test('rejects truncated and unknown scheduled-transfer V1 state', () => {
+    expect(() => decodeWorkflowState(new Uint8Array(64))).toThrow(/too short/);
+    const data = new Uint8Array(65);
+    data.set(recipient.toBytes(), 8);
+    data[64] = 255;
+    expect(() => decodeWorkflowState(data)).toThrow(/Unknown/);
+  });
+
+  test('rejects truncated and unknown recurring-allowance V1 state', () => {
+    expect(() => decodeAllowanceState(new Uint8Array(80))).toThrow(/too short/);
+    const data = new Uint8Array(81);
+    data.set(recipient.toBytes(), 8);
+    data[80] = 255;
+    expect(() => decodeAllowanceState(data)).toThrow(/Unknown/);
+  });
+
   test('formats exact whole and fractional Kelvin values', () => {
     expect(formatKelvinAsRlo(1_000_000_000n)).toBe('1');
     expect(formatKelvinAsRlo(1_250_000_000n)).toBe('1.25');

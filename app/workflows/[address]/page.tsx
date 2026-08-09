@@ -443,8 +443,8 @@ function renderAllowanceInfo(state: RecurringAllowanceState) {
           color: '#1E8449',
         }}
       >
-        All 3 distributions have been completed. {formatKelvinAsRlo(state.totalDistributed)} RLO
-        total was distributed via native AFTER callbacks — no off-chain infrastructure was used.
+        All 3 callbacks completed. The {formatKelvinAsRlo(state.totalDistributed)} RLO total is
+        a V1 state counter, not proof of an RLO transfer. No off-chain keeper was used.
       </div>
     );
   }

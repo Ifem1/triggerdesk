@@ -45,3 +45,7 @@ AVAILABILITY**. No simulation or keeper substitute was introduced.
 - [x] CSP and modern baseline security headers.
 - [x] High-severity npm advisories remediated; audit clean.
 - [x] Repository governance and versioning policy established.
+- [x] Shipped UI copy no longer describes V1 state counters as transferred funds.
+- [x] V1 decoders reject truncated accounts and unknown status values.
+- [x] RPC boundary tests cover malformed JSON, invalid envelopes, method denial,
+  fixed-upstream forwarding, and sanitized upstream failures.

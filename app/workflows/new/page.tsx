@@ -61,8 +61,8 @@ export default function NewWorkflowPage() {
       <div>
         <h1 style={{ fontSize: 26, fontWeight: 700 }}>Create Scheduled Transfer</h1>
         <p style={{ color: P.olive, fontSize: 13, marginTop: 4 }}>
-          Send RLO to a recipient at a future time. The transfer is scheduled on-chain using a
-          Venus AFTER callback — no keeper or cron job required.
+          Create a timed Rialo DevNet workflow. Its native AFTER callback updates on-chain
+          state without a keeper; the current V1 program does not transfer RLO.
         </p>
       </div>
 

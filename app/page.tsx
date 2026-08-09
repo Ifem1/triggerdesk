@@ -421,7 +421,7 @@ const TEMPLATES = [
   {
     title: 'Scheduled Transfer',
     rule: 'AFTER 5min -> SEND 0.5 RLO to recipient',
-    desc: 'Send RLO to any address at a future time. The AFTER callback fires automatically.',
+    desc: 'Create a timed DevNet workflow whose native AFTER callback updates on-chain state. V1 does not transfer RLO.',
     tag: 'TRANSFER',
     ready: true,
   },
@@ -573,8 +573,8 @@ function ArchBanner() {
         </h2>
 
         <p className="text-lg max-w-2xl mx-auto" style={{ color: P.sand }}>
-          Real PolkaVM programs. Real on-chain state. Real triggered transactions.
-          No simulation. No keepers. No off-chain workers.
+          Real PolkaVM programs, on-chain state, and native callback transactions.
+          No keepers or off-chain workers. V1 does not move RLO.
         </p>
 
         <div className="grid md:grid-cols-3 gap-4 text-left max-w-3xl mx-auto">
@@ -697,7 +697,7 @@ function LandingFooter() {
             TriggerDesk
           </p>
           <p className="text-xs mt-1" style={{ color: P.olive }}>
-            Real on-chain workflows on Rialo DevNet
+            Native workflow callbacks on Rialo DevNet — V1 does not transfer RLO
           </p>
         </div>
         <nav className="flex gap-6 text-xs" style={{ color: P.sand }}>

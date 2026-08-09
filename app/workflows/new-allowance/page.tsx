@@ -209,8 +209,8 @@ export default function NewAllowancePage() {
           <ol className="space-y-1" style={{ paddingLeft: 16, listStyleType: 'decimal' }}>
             <li>Your transaction creates a workflow PDA and 3 AFTER subscriptions on DevNet</li>
             <li>Each subscription fires at the scheduled interval — no keeper needed</li>
-            <li>Each callback increments the distribution count and tracks total distributed</li>
-            <li>After 3 distributions the workflow status changes to Complete</li>
+            <li>Each callback updates a demonstration counter; it does not transfer RLO</li>
+            <li>After 3 callbacks the workflow status changes to Complete</li>
           </ol>
         </div>
 

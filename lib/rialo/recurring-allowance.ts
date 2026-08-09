@@ -145,6 +145,9 @@ export async function createRecurringAllowance(
 }
 
 export function decodeAllowanceState(data: Uint8Array): RecurringAllowanceState {
+  if (data.byteLength < 81) {
+    throw new Error(`Recurring Allowance V1 account is too short: ${data.byteLength} bytes`);
+  }
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
 
   const discriminator = view.getBigUint64(0, true);
@@ -156,6 +159,10 @@ export function decodeAllowanceState(data: Uint8Array): RecurringAllowanceState 
   const distributionCount = view.getBigUint64(64, true);
   const createdAt = view.getBigUint64(72, true);
   const status = data[80];
+
+  if (!(Object.values(ALLOWANCE_STATUS) as number[]).includes(status)) {
+    throw new Error(`Unknown Recurring Allowance V1 status: ${status}`);
+  }
 
   return {
     discriminator,
