@@ -26,7 +26,7 @@ supported by repository, test, deployment, or external-blocker evidence.
 - [ ] V2 contract implementation is intentionally not started without a verified
   build/interface path.
 - [ ] State version, creator identity, lifecycle, escrow, invariants, and reserve
-  model remain required.
+  model remain to be implemented from the completed specification.
 
 ## Milestones 3–4 — autonomous value execution
 
