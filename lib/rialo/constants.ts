@@ -1,9 +1,11 @@
-export const SCHEDULED_TRANSFER_PROGRAM_ID = '7BcfcJEJPxatpejoHjbWfPNnEnEsnk3fh1toN4pYCuxh';
-export const RECURRING_ALLOWANCE_PROGRAM_ID = '6TpMo9xFFLYktHhmXzaTkBp2rPTzAuLrk699W7NAW7RZ';
+import { ACTIVE_NETWORK } from './network';
+
+export const SCHEDULED_TRANSFER_PROGRAM_ID = ACTIVE_NETWORK.scheduledTransfer.programId;
+export const RECURRING_ALLOWANCE_PROGRAM_ID = ACTIVE_NETWORK.recurringAllowance.programId;
 
 export const KELVIN_PER_RLO = 1_000_000_000;
 
-export const DEVNET_RPC_URL = 'https://devnet.rialo.io:4101';
+export const DEVNET_RPC_URL = ACTIVE_NETWORK.rpcUrl;
 
 export const WORKFLOW_STATUS = {
   UNINITIALIZED: 0,

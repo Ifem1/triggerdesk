@@ -1,4 +1,6 @@
 export { getRialoClient } from './client';
+export { ACTIVE_NETWORK, getNetworkConfig } from './network';
+export type { NetworkConfig, NetworkName } from './network';
 export { RialoProvider, useRialo } from './provider';
 export {
   createScheduledTransfer,

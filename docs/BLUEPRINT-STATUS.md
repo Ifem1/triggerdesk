@@ -49,3 +49,6 @@ AVAILABILITY**. No simulation or keeper substitute was introduced.
 - [x] V1 decoders reject truncated accounts and unknown status values.
 - [x] RPC boundary tests cover malformed JSON, invalid envelopes, method denial,
   fixed-upstream forwarding, and sanitized upstream failures.
+- [x] Fail-closed DevNet network registry derives program IDs and artifact hashes
+  from the deployment record; unverified networks are rejected.
+- [x] Health endpoint and operational/incident-response runbooks added.

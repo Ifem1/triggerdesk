@@ -14,3 +14,5 @@ separately.
 - Removed the production build's dependency on downloading Google Fonts.
 - Removed remaining runtime copy that described V1 counters as payments.
 - Added defensive V1 account length/status validation and RPC boundary tests.
+- Centralized verified DevNet deployment configuration and added a health endpoint.
+- Added operational monitoring, recovery, and incident-response runbooks.
