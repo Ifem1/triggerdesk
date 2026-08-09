@@ -1,0 +1,37 @@
+name: Bug report
+description: Report a reproducible TriggerDesk defect
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit/version
+    validations:
+      required: true
+  - type: input
+    id: network
+    attributes:
+      label: Network and program ID
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Transaction signatures or redacted evidence
+      description: Never include keys, mnemonics, or secret signing bytes.
+

@@ -24,14 +24,13 @@ export default function NewWorkflowPage() {
       return;
     }
 
-    const amount = parseFloat(amountRlo);
     const delay = parseInt(delayMinutes, 10);
 
     if (!recipient || recipient.length < 32) {
       setError('Enter a valid Rialo address.');
       return;
     }
-    if (isNaN(amount) || amount <= 0) {
+    if (!amountRlo.trim()) {
       setError('Enter a valid amount.');
       return;
     }
@@ -46,7 +45,7 @@ export default function NewWorkflowPage() {
     try {
       const result = await createScheduledTransfer(client, keypair, {
         recipientAddress: recipient,
-        amountRlo: amount,
+        amountRlo,
         delaySeconds: delay * 60,
       });
       router.push(`/workflows/${result.workflowPda}`);

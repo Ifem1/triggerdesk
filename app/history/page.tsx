@@ -84,9 +84,12 @@ export default function HistoryPage() {
   }, [client, wallet.publicKey]);
 
   useEffect(() => {
-    refresh();
+    const initial = setTimeout(refresh, 0);
     const interval = setInterval(refresh, 15_000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(interval);
+    };
   }, [refresh]);
 
   const terminal = entries.filter(isTerminal);

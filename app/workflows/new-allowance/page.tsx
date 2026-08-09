@@ -4,8 +4,17 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRialo } from '@/lib/rialo/provider';
 import { createRecurringAllowance } from '@/lib/rialo/recurring-allowance';
+import { checkedMultiply, formatKelvin, parseRloToKelvin } from '@/lib/rialo/money';
 
 const P = { lightest: '#FEFCF3', cream: '#FAE8B4', sand: '#CBBD93', olive: '#80775C', bark: '#574A24' };
+
+function previewTotal(amount: string): string {
+  try {
+    return formatKelvin(checkedMultiply(parseRloToKelvin(amount), 3n));
+  } catch {
+    return '—';
+  }
+}
 
 export default function NewAllowancePage() {
   const router = useRouter();
@@ -24,14 +33,13 @@ export default function NewAllowancePage() {
       return;
     }
 
-    const amount = parseFloat(amountRlo);
     const interval = parseInt(intervalMin, 10);
 
     if (!recipient || recipient.length < 32) {
       setError('Enter a valid Rialo address.');
       return;
     }
-    if (isNaN(amount) || amount <= 0) {
+    if (!amountRlo.trim()) {
       setError('Enter a valid amount per distribution.');
       return;
     }
@@ -46,7 +54,7 @@ export default function NewAllowancePage() {
     try {
       const result = await createRecurringAllowance(client, keypair, {
         recipientAddress: recipient,
-        amountRlo: amount,
+        amountRlo,
         intervalSeconds: interval * 60,
       });
       router.push(`/workflows/${result.workflowPda}`);
@@ -167,7 +175,7 @@ export default function NewAllowancePage() {
               color: '#2E86C1',
             }}
           >
-            Total: {(parseFloat(amountRlo || '0') * 3).toFixed(2)} RLO over{' '}
+            Total: {previewTotal(amountRlo)} RLO over{' '}
             {parseInt(intervalMin || '0', 10) * 3} minutes (3 distributions)
           </div>
         )}

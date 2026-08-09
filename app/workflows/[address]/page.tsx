@@ -144,9 +144,12 @@ export default function WorkflowDetailPage() {
   }, [client, address]);
 
   useEffect(() => {
-    refresh();
+    const initial = setTimeout(refresh, 0);
     const interval = setInterval(refresh, 10_000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(interval);
+    };
   }, [refresh]);
 
   if (loading) {

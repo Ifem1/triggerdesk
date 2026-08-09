@@ -228,7 +228,7 @@ function Hero() {
           className="fadein-up-3 text-lg md:text-xl max-w-2xl mx-auto"
           style={{ color: P.olive }}
         >
-          Define a workflow once. Rialo's native subscription engine watches the clock, evaluates
+          Define a workflow once. Rialo&apos;s native subscription engine watches the clock, evaluates
           your trigger, and fires the transaction automatically. No keepers. No cron. No
           off-chain infrastructure.
         </p>

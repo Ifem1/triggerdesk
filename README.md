@@ -20,10 +20,10 @@ Built on Venus programs (compiled to PolkaVM RISC-V) and Rialo's native subscrip
 
 | Template | Program ID | What It Does |
 |---|---|---|
-| **Scheduled Transfer** | `7BcfcJEJPxatpejoHjbWfPNnEnEsnk3fh1toN4pYCuxh` | Send RLO to any address at a future time. One AFTER callback. |
-| **Recurring Allowance** | `6TpMo9xFFLYktHhmXzaTkBp2rPTzAuLrk699W7NAW7RZ` | Distribute a fixed amount 3 times at intervals. Three AFTER callbacks. |
+| **Scheduled Transfer** | `7BcfcJEJPxatpejoHjbWfPNnEnEsnk3fh1toN4pYCuxh` | Create a timed workflow whose AFTER callback changes on-chain state from pending to claimable. It does not currently transfer RLO. |
+| **Recurring Allowance** | `6TpMo9xFFLYktHhmXzaTkBp2rPTzAuLrk699W7NAW7RZ` | Create a finite three-callback workflow that updates distribution counters. It does not currently transfer RLO. |
 
-Both are deployed and verified on Rialo DevNet.
+Both programs are deployed on Rialo DevNet and their native callbacks have been observed updating state. They are experimental DevNet automation proofs, not production payment products.
 
 ---
 
@@ -96,7 +96,7 @@ lib/rialo/              # TypeScript CDK service layer
   keypair.ts            # Ephemeral key management
 programs/               # Venus programs (Rust source + compiled PolkaVM)
   scheduled-transfer/   # AFTER <time> -> mark claimable
-  recurring-allowance/  # 3x AFTER -> distribute allowance
+  recurring-allowance/  # 3x AFTER -> update allowance counters
   triggerdesk-phase0/   # Phase 0 proof-of-concept
 ```
 

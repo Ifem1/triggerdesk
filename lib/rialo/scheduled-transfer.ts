@@ -4,12 +4,12 @@ import {
   type Keypair,
   type RialoClient,
   type Instruction,
-  KELVIN_PER_RLO,
 } from '@rialo/ts-cdk';
 import { SCHEDULED_TRANSFER_PROGRAM_ID, WORKFLOW_STATUS } from './constants';
 import type { ScheduledTransferState, CreateScheduledTransferParams } from './types';
 import { saveClientCreatedAt } from './client-timestamps';
 import { recordMyWorkflow } from './my-workflows';
+import { formatKelvin, parseRloToKelvin } from './money';
 
 const PROGRAM_ID = PublicKey.fromString(SCHEDULED_TRANSFER_PROGRAM_ID);
 const SYSTEM_PROGRAM = PublicKey.fromString('11111111111111111111111111111111');
@@ -84,7 +84,7 @@ export async function createScheduledTransfer(
   params: CreateScheduledTransferParams,
 ): Promise<{ signature: string; workflowPda: string; slug: Uint8Array }> {
   const recipientPubkey = PublicKey.fromString(params.recipientAddress);
-  const amountKelvin = BigInt(Math.round(params.amountRlo * KELVIN_PER_RLO));
+  const amountKelvin = parseRloToKelvin(params.amountRlo);
   const executeAt = BigInt(Math.floor(Date.now() / 1000) + params.delaySeconds);
 
   const slug = generateRandomSlug();
@@ -219,8 +219,7 @@ export async function listWorkflows(
 }
 
 export function formatKelvinAsRlo(kelvin: bigint): string {
-  const rlo = Number(kelvin) / KELVIN_PER_RLO;
-  return rlo.toFixed(rlo % 1 === 0 ? 0 : 2);
+  return formatKelvin(kelvin);
 }
 
 export function getStatusLabel(status: number): string {

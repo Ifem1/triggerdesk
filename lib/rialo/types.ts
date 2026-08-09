@@ -15,7 +15,7 @@ export interface WorkflowInfo {
 
 export interface CreateScheduledTransferParams {
   recipientAddress: string;
-  amountRlo: number;
+  amountRlo: string;
   delaySeconds: number;
 }
 
@@ -32,7 +32,7 @@ export interface RecurringAllowanceState {
 
 export interface CreateRecurringAllowanceParams {
   recipientAddress: string;
-  amountRlo: number;
+  amountRlo: string;
   intervalSeconds: number;
 }
 

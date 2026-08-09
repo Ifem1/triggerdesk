@@ -1,0 +1,31 @@
+{
+  "network": "rialo:devnet",
+  "rpc": "https://devnet.rialo.io:4101",
+  "baselineSourceCommit": "6a76dfd7fd88dddd4a93d59279bd99f77ea49ca0",
+  "verifiedAt": "2026-08-09",
+  "loaderAccountHeaderBytes": 48,
+  "programs": {
+    "scheduledTransferV1": {
+      "programId": "7BcfcJEJPxatpejoHjbWfPNnEnEsnk3fh1toN4pYCuxh",
+      "schemaVersion": 1,
+      "owner": "RiscVLoader11111111111111111111111111111111",
+      "executable": true,
+      "artifactSha256": "F0EDE60DCD4471C0F1961CCA76AD7D04E822FD727A0FC72B4425B563A89D256A",
+      "manifestSha256": "95E77FE52FEA394144143523848BB7016E853E4B612C27D9DCC83ED92808ACD4",
+      "deployedPayloadSha256": "F0EDE60DCD4471C0F1961CCA76AD7D04E822FD727A0FC72B4425B563A89D256A",
+      "deploymentTransaction": null,
+      "notes": "Deployed payload is the executable account data after the 48-byte loader header. The hash exactly matches the checked-in artifact. Deployment transaction is not recoverable from current repository records."
+    },
+    "recurringAllowanceV1": {
+      "programId": "6TpMo9xFFLYktHhmXzaTkBp2rPTzAuLrk699W7NAW7RZ",
+      "schemaVersion": 1,
+      "owner": "RiscVLoader11111111111111111111111111111111",
+      "executable": true,
+      "artifactSha256": "C8BCDC706730AEB5DD1CB912124BC951C2BD5CC7443266E290AD43148C5C15BB",
+      "manifestSha256": "43168E645BB8A54693E45E6E702350F38FC9760A311E2AE3C5EA544EA2F89631",
+      "deployedPayloadSha256": "C8BCDC706730AEB5DD1CB912124BC951C2BD5CC7443266E290AD43148C5C15BB",
+      "deploymentTransaction": null,
+      "notes": "Deployed payload is the executable account data after the 48-byte loader header. The hash exactly matches the checked-in artifact. Deployment transaction is not recoverable from current repository records."
+    }
+  }
+}

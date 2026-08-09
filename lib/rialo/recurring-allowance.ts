@@ -4,12 +4,12 @@ import {
   type Keypair,
   type RialoClient,
   type Instruction,
-  KELVIN_PER_RLO,
 } from '@rialo/ts-cdk';
 import { RECURRING_ALLOWANCE_PROGRAM_ID, ALLOWANCE_STATUS } from './constants';
 import type { RecurringAllowanceState, CreateRecurringAllowanceParams } from './types';
 import { saveClientCreatedAt } from './client-timestamps';
 import { recordMyWorkflow } from './my-workflows';
+import { parseRloToKelvin } from './money';
 
 const PROGRAM_ID = PublicKey.fromString(RECURRING_ALLOWANCE_PROGRAM_ID);
 const SYSTEM_PROGRAM = PublicKey.fromString('11111111111111111111111111111111');
@@ -85,7 +85,7 @@ export async function createRecurringAllowance(
   params: CreateRecurringAllowanceParams,
 ): Promise<{ signature: string; workflowPda: string; slug: Uint8Array }> {
   const recipientPubkey = PublicKey.fromString(params.recipientAddress);
-  const amountKelvin = BigInt(Math.round(params.amountRlo * KELVIN_PER_RLO));
+  const amountKelvin = parseRloToKelvin(params.amountRlo);
   const intervalSeconds = BigInt(params.intervalSeconds);
 
   const slug = generateRandomSlug();

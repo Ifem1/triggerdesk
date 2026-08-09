@@ -98,9 +98,12 @@ export default function DashboardPage() {
   }, [client, wallet.publicKey]);
 
   useEffect(() => {
-    refresh();
+    const initial = setTimeout(refresh, 0);
     const interval = setInterval(refresh, 15_000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(interval);
+    };
   }, [refresh]);
 
   const active = entries.filter((e) => {
@@ -327,9 +330,9 @@ export default function DashboardPage() {
                       {entry.type === 'transfer' && (
                         <div style={{ textAlign: 'right' }}>
                           <p style={{ fontSize: 11, color: P.olive }}>
-                            {new Date(Number((entry.state as ScheduledTransferState).scheduledAt) * 1000).getTime() < Date.now()
-                              ? 'Scheduled for'
-                              : 'Fires at'}
+                            {(entry.state as ScheduledTransferState).status === WORKFLOW_STATUS.PENDING
+                              ? 'Fires at'
+                              : 'Scheduled for'}
                           </p>
                           <p style={{ fontSize: 12, color: P.bark }}>
                             {new Date(Number((entry.state as ScheduledTransferState).scheduledAt) * 1000).toLocaleString()}

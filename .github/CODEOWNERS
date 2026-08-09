@@ -1,0 +1,5 @@
+/programs/ @Ifem1
+/lib/rialo/ @Ifem1
+/app/api/rpc/ @Ifem1
+/deployments/ @Ifem1
+
