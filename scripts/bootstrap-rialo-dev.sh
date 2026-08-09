@@ -67,7 +67,9 @@ step "Install rialoman ${RIALOMAN_VERSION}"
 if ! have rialoman; then
   installer_tmp="$(mktemp)"
   if curl --proto '=https' --tlsv1.2 -fsSL "$RIALOMAN_INSTALLER" -o "$installer_tmp"; then
-    bash "$installer_tmp"
+    # Remote SSH sessions have no /dev/tty. PATH is exported explicitly below,
+    # so skip the installer's otherwise-interactive shell-profile prompt.
+    bash "$installer_tmp" --no-modify-path
   else
     echo "Hosted rialoman installer unavailable; installing the official crates.io release."
     cargo install --locked --version "$RIALOMAN_VERSION" rialoman
