@@ -18,6 +18,11 @@ supported by repository, test, deployment, or external-blocker evidence.
 
 ## Milestone 2 — financial state and escrow design
 
+- [x] Canonical V2 fields and schema-version boundary specified.
+- [x] Creator authority and immutable recipient specified.
+- [x] Lifecycle statuses and terminal transitions specified.
+- [x] Principal, reserve, fee, distribution, and refund equations specified.
+- [x] Replay and cancel/execution race invariants specified.
 - [ ] V2 contract implementation is intentionally not started without a verified
   build/interface path.
 - [ ] State version, creator identity, lifecycle, escrow, invariants, and reserve
@@ -40,4 +45,3 @@ AVAILABILITY**. No simulation or keeper substitute was introduced.
 - [x] CSP and modern baseline security headers.
 - [x] High-severity npm advisories remediated; audit clean.
 - [x] Repository governance and versioning policy established.
-
