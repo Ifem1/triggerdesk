@@ -6,6 +6,14 @@ Audited local head: `98144d7` plus this audit commit
 
 ## Verdict
 
+> Update after the original audit: Scheduled Transfer V2 now has a distinct
+> deployed DevNet program, exact artifact/deployed-payload hash equality, real
+> escrow funding, native AFTER payment, replay rejection, native subscription
+> cancellation, exact refund, and idempotent repeat cancellation. See
+> `docs/SCHEDULED-TRANSFER-V2-E2E.md`. Recurring Allowance V2, general-duration
+> scheduling, product integration, and the remaining production gates are still
+> incomplete, so TriggerDesk is not yet finished or production-ready.
+
 TriggerDesk is a truthful, substantially hardened Rialo DevNet native-callback
 prototype. It is **not** an autonomous payment product, 10/10 DevNet financial
 product, production-ready product, or mainnet-ready product. The decisive target

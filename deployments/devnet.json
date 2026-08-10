@@ -5,6 +5,19 @@
   "verifiedAt": "2026-08-09",
   "loaderAccountHeaderBytes": 48,
   "programs": {
+    "scheduledTransferV2": {
+      "programId": "FkqUGXxy8y4PHGdRmtJLvKMp1h48EeeWaz8KCFi9ZAwS",
+      "schemaVersion": 2,
+      "owner": "RiscVLoader11111111111111111111111111111111",
+      "executable": true,
+      "artifactSha256": "583BA4F95924F03E29FF4F2FC6DDB7E5D81CC2556EBE8B649C2038898DD537A2",
+      "manifestSha256": "E203DE1203AF0DAB885A13F9F27C80680DD212FF5E35E64E575AA9B4F2F8926B",
+      "clientManifestSha256": "132A31E7DB12108D0710372A83A9A7DE2E9B5418D6F0E4F2CBC20A272B79E153",
+      "witSha256": "669528A39A25BE1249B420A3D9CECD0F7F81A649E2178D993632681AC79D1C5D",
+      "deployedPayloadSha256": "583BA4F95924F03E29FF4F2FC6DDB7E5D81CC2556EBE8B649C2038898DD537A2",
+      "deploymentTransaction": null,
+      "notes": "Final schema-stable V2. Deployment succeeded despite the 0.12.2 CLI returning InvalidArgument during its post-deploy retry/poll. Program show and executable payload hashing independently prove deployment. See docs/SCHEDULED-TRANSFER-V2-E2E.md."
+    },
     "scheduledTransferV1": {
       "programId": "7BcfcJEJPxatpejoHjbWfPNnEnEsnk3fh1toN4pYCuxh",
       "schemaVersion": 1,

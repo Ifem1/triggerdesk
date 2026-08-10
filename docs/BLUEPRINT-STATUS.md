@@ -28,17 +28,21 @@ supported by repository, test, deployment, or external-blocker evidence.
 - [x] Venus callback account resolution and a PDA-signed native RLO transfer
   are proven by compiler output and DevNet balance movement. See
   `docs/FUNDS-PATH-PROBE.md`.
-- [ ] V2 contract implementation is now unblocked by the verified funds path.
-- [ ] State version, creator identity, lifecycle, escrow, invariants, and reserve
-  model remain to be implemented from the completed specification.
+- [x] Scheduled Transfer V2 implements versioned state, creator identity,
+  immutable recipient, exact escrow, terminal lifecycle, and replay protection.
+- [x] Creator cancellation destroys the native subscription and atomically
+  refunds exact unused principal.
 
 ## Milestones 3–4 — autonomous value execution
 
-- [ ] Scheduled Transfer escrow/payment/refund.
+- [x] Scheduled Transfer escrow/payment/refund is proven on the final DevNet
+  program, including exact recipient delta, replay rejection, subscription
+  cleanup, exact refund, and idempotent repeat cancel. See
+  `docs/SCHEDULED-TRANSFER-V2-E2E.md`.
 - [ ] Recurring Allowance escrow/installments/refund.
 - [x] Disposable capability gate: native AFTER increased the recipient by
   exactly 1,000,000 kelvins; a wrong bump moved zero and left 2,000,000
-  kelvins in the vault. Product V2 adversarial/E2E evidence remains pending.
+  kelvins in the vault.
 
 Status: **ACTIVE REMOTE LINUX FUNDS-PATH WORK**. Windows tool availability is not
 a project blocker. No simulation or keeper substitute was introduced.
