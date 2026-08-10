@@ -1,8 +1,11 @@
 # Scheduled Transfer V2 DevNet evidence
 
-Evidence date: 2026-08-09  
-Network: Rialo DevNet  
-Final program: `FkqUGXxy8y4PHGdRmtJLvKMp1h48EeeWaz8KCFi9ZAwS`  
+Evidence date: 2026-08-09
+
+Network: Rialo DevNet
+
+Final program: `FkqUGXxy8y4PHGdRmtJLvKMp1h48EeeWaz8KCFi9ZAwS`
+
 Artifact SHA-256: `583ba4f95924f03e29ff4f2fc6ddb7e5d81cc2556ebe8b649c2038898dd537a2`
 
 The 48-byte loader header was removed from the deployed account before hashing.
