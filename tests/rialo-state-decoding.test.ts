@@ -17,23 +17,34 @@ import {
 const recipient = PublicKey.fromString(SCHEDULED_TRANSFER_PROGRAM_ID);
 
 describe('current Rialo workflow account decoding', () => {
-  test('decodes the checked-in scheduled-transfer V1 layout', () => {
+  test('decodes the active scheduled-transfer V2 layout', () => {
     const data = new Uint8Array(256);
     const view = new DataView(data.buffer);
     view.setBigUint64(0, 42n, true);
-    data.set(recipient.toBytes(), 8);
-    view.setBigUint64(40, 1_500_000_000n, true);
-    view.setBigUint64(48, 2_000_000_000n, true);
-    view.setBigUint64(56, 1_900_000_000n, true);
-    data[64] = WORKFLOW_STATUS.PENDING;
+    data[8] = 2;
+    data[9] = WORKFLOW_STATUS.SCHEDULED;
+    data.set(recipient.toBytes(), 10);
+    data.set(recipient.toBytes(), 42);
+    data.set(recipient.toBytes(), 74);
+    data.set(recipient.toBytes(), 106);
+    view.setBigUint64(139, 1_500_000_000n, true);
+    view.setBigUint64(147, 2_000_000_000_000n, true);
+    view.setBigUint64(155, 1_500_000_000n, true);
 
     expect(decodeWorkflowState(data)).toEqual({
       discriminator: 42n,
+      schemaVersion: 2,
+      creator: recipient.toString(),
       recipient: recipient.toString(),
+      vault: recipient.toString(),
+      subscription: recipient.toString(),
       amountKelvin: 1_500_000_000n,
       scheduledAt: 2_000_000_000n,
-      createdAt: 1_900_000_000n,
-      status: WORKFLOW_STATUS.PENDING,
+      fundedAmount: 1_500_000_000n,
+      paidAmount: 0n,
+      refundedAmount: 0n,
+      createdAt: 0n,
+      status: WORKFLOW_STATUS.SCHEDULED,
     });
   });
 
@@ -62,17 +73,16 @@ describe('current Rialo workflow account decoding', () => {
   });
 
   test('maps current status values without pretending unknown state is valid', () => {
-    expect(getStatusLabel(WORKFLOW_STATUS.CLAIMABLE)).toBe('Claimable');
+    expect(getStatusLabel(WORKFLOW_STATUS.EXECUTED)).toBe('Executed');
     expect(getStatusLabel(255)).toBe('Unknown (255)');
     expect(getAllowanceStatusLabel(ALLOWANCE_STATUS.COMPLETE)).toBe('Complete');
     expect(getAllowanceStatusLabel(255)).toBe('Unknown (255)');
   });
 
-  test('rejects truncated and unknown scheduled-transfer V1 state', () => {
+  test('rejects truncated and unknown scheduled-transfer V2 state', () => {
     expect(() => decodeWorkflowState(new Uint8Array(64))).toThrow(/too short/);
-    const data = new Uint8Array(65);
-    data.set(recipient.toBytes(), 8);
-    data[64] = 255;
+    const data = new Uint8Array(179);
+    data[9] = 255;
     expect(() => decodeWorkflowState(data)).toThrow(/Unknown/);
   });
 
