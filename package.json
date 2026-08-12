@@ -14,7 +14,7 @@
     "@rialo/ts-cdk": "0.12.2",
     "next": "16.3.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
