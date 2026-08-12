@@ -81,6 +81,8 @@ investigated before the product UI can claim general scheduled transfers.
 
 ## P0 surplus-deposit hardening (2026-08-12)
 
+Implementation/evidence commit: `e2a0cc80b8f82fdb16494f93d78585a6a2b1749f`.
+
 The historical program required an exact vault balance and was vulnerable to
 availability griefing: a positive unsolicited system transfer into the public
 vault PDA made both execution and cancellation reject before moving principal.
