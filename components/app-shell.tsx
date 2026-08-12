@@ -156,7 +156,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         className="border-t py-4 text-center text-xs"
         style={{ borderColor: P.sand + '66', color: P.olive, background: P.cream + '33' }}
       >
-        TriggerDesk on Rialo DevNet — Real on-chain workflows. No simulation.
+        TriggerDesk on Rialo DevNet — Native workflow callbacks; V1 does not transfer RLO.
       </footer>
     </div>
   );

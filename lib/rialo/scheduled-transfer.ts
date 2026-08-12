@@ -4,12 +4,12 @@ import {
   type Keypair,
   type RialoClient,
   type Instruction,
-  KELVIN_PER_RLO,
 } from '@rialo/ts-cdk';
 import { SCHEDULED_TRANSFER_PROGRAM_ID, WORKFLOW_STATUS } from './constants';
 import type { ScheduledTransferState, CreateScheduledTransferParams } from './types';
 import { saveClientCreatedAt } from './client-timestamps';
 import { recordMyWorkflow } from './my-workflows';
+import { formatKelvin, parseRloToKelvin } from './money';
 
 const PROGRAM_ID = PublicKey.fromString(SCHEDULED_TRANSFER_PROGRAM_ID);
 const SYSTEM_PROGRAM = PublicKey.fromString('11111111111111111111111111111111');
@@ -84,7 +84,7 @@ export async function createScheduledTransfer(
   params: CreateScheduledTransferParams,
 ): Promise<{ signature: string; workflowPda: string; slug: Uint8Array }> {
   const recipientPubkey = PublicKey.fromString(params.recipientAddress);
-  const amountKelvin = BigInt(Math.round(params.amountRlo * KELVIN_PER_RLO));
+  const amountKelvin = parseRloToKelvin(params.amountRlo);
   const executeAt = BigInt(Math.floor(Date.now() / 1000) + params.delaySeconds);
 
   const slug = generateRandomSlug();
@@ -140,17 +140,34 @@ export async function createScheduledTransfer(
 }
 
 export function decodeWorkflowState(data: Uint8Array): ScheduledTransferState {
+  if (data.byteLength < 179) {
+    throw new Error(`Scheduled Transfer V2 account is too short: ${data.byteLength} bytes`);
+  }
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
 
   const discriminator = view.getBigUint64(0, true);
-  const recipientBytes = data.slice(8, 40);
+  const schemaVersion = data[8];
+  const status = data[9];
+  const creator = PublicKey.fromBytes(data.slice(10, 42)).toString();
+  const recipientBytes = data.slice(42, 74);
   const recipient = PublicKey.fromBytes(recipientBytes).toString();
-  const amountKelvin = view.getBigUint64(40, true);
-  const scheduledAt = view.getBigUint64(48, true);
-  const createdAt = view.getBigUint64(56, true);
-  const status = data[64];
+  const vault = PublicKey.fromBytes(data.slice(74, 106)).toString();
+  const subscription = PublicKey.fromBytes(data.slice(106, 138)).toString();
+  const amountKelvin = view.getBigUint64(139, true);
+  const executeAtMs = view.getBigUint64(147, true);
+  const fundedAmount = view.getBigUint64(155, true);
+  const paidAmount = view.getBigUint64(163, true);
+  const refundedAmount = view.getBigUint64(171, true);
 
-  return { discriminator, recipient, amountKelvin, scheduledAt, createdAt, status };
+  if (!(Object.values(WORKFLOW_STATUS) as number[]).includes(status)) {
+    throw new Error(`Unknown Scheduled Transfer V2 status: ${status}`);
+  }
+
+  return {
+    discriminator, schemaVersion, creator, recipient, vault, subscription,
+    amountKelvin, scheduledAt: executeAtMs / 1000n, fundedAmount, paidAmount,
+    refundedAmount, createdAt: 0n, status,
+  };
 }
 
 export async function getWorkflowState(
@@ -202,7 +219,7 @@ export async function listWorkflows(
           continue;
         }
 
-        if (bytes.length < 65) continue;
+        if (bytes.length < 179) continue;
         const state = decodeWorkflowState(bytes);
         if (state.discriminator === 0n) continue;
 
@@ -219,16 +236,14 @@ export async function listWorkflows(
 }
 
 export function formatKelvinAsRlo(kelvin: bigint): string {
-  const rlo = Number(kelvin) / KELVIN_PER_RLO;
-  return rlo.toFixed(rlo % 1 === 0 ? 0 : 2);
+  return formatKelvin(kelvin);
 }
 
 export function getStatusLabel(status: number): string {
   switch (status) {
     case WORKFLOW_STATUS.UNINITIALIZED: return 'Uninitialized';
-    case WORKFLOW_STATUS.PENDING: return 'Pending';
-    case WORKFLOW_STATUS.CLAIMABLE: return 'Claimable';
-    case WORKFLOW_STATUS.CLAIMED: return 'Claimed';
+    case WORKFLOW_STATUS.SCHEDULED: return 'Scheduled';
+    case WORKFLOW_STATUS.EXECUTED: return 'Executed';
     case WORKFLOW_STATUS.CANCELLED: return 'Cancelled';
     default: return `Unknown (${status})`;
   }

@@ -1,0 +1,18 @@
+# Changelog
+
+All notable changes are recorded here. The project uses Semantic Versioning for
+the web application; deployed program versions and schema versions are tracked
+separately.
+
+## Unreleased
+
+### Changed
+
+- Replaced retired simulator tests with tests for the current Rialo account layouts.
+- Added explicit typechecking and continuous integration.
+- Corrected documentation so V1 callbacks are not described as RLO transfers.
+- Removed the production build's dependency on downloading Google Fonts.
+- Removed remaining runtime copy that described V1 counters as payments.
+- Added defensive V1 account length/status validation and RPC boundary tests.
+- Centralized verified DevNet deployment configuration and added a health endpoint.
+- Added operational monitoring, recovery, and incident-response runbooks.

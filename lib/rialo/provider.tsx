@@ -10,7 +10,7 @@ import {
   saveKeypairToSession,
   clearSessionKeypair,
 } from './keypair';
-import type { ConnectionStatus, WalletState, ScheduledTransferState } from './types';
+import type { ConnectionStatus, WalletState } from './types';
 import type { Keypair } from '@rialo/ts-cdk';
 
 interface RialoContextValue {
@@ -43,22 +43,27 @@ export function RialoProvider({ children }: { children: React.ReactNode }) {
   const [airdropError, setAirdropError] = useState<string | null>(null);
 
   useEffect(() => {
-    const restored = loadKeypairFromSession();
-    if (restored) {
-      setKeypair(restored);
-      setWallet((w) => ({ ...w, publicKey: restored.publicKey.toString() }));
-    }
+    const restore = setTimeout(() => {
+      const restored = loadKeypairFromSession();
+      if (restored) {
+        setKeypair(restored);
+        setWallet((w) => ({ ...w, publicKey: restored.publicKey.toString() }));
+      }
+    }, 0);
+    return () => clearTimeout(restore);
   }, []);
 
   useEffect(() => {
-    setConnectionStatus('connecting');
-    client
-      .getBlockHeight()
-      .then((h) => {
-        setBlockHeight(h);
-        setConnectionStatus('connected');
-      })
-      .catch(() => setConnectionStatus('error'));
+    const initial = setTimeout(() => {
+      setConnectionStatus('connecting');
+      client
+        .getBlockHeight()
+        .then((h) => {
+          setBlockHeight(h);
+          setConnectionStatus('connected');
+        })
+        .catch(() => setConnectionStatus('error'));
+    }, 0);
 
     const interval = setInterval(async () => {
       try {
@@ -70,7 +75,10 @@ export function RialoProvider({ children }: { children: React.ReactNode }) {
       }
     }, 30_000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(interval);
+    };
   }, [client]);
 
   const refreshBalance = useCallback(async () => {
@@ -84,7 +92,10 @@ export function RialoProvider({ children }: { children: React.ReactNode }) {
   }, [client, keypair]);
 
   useEffect(() => {
-    if (keypair) refreshBalance();
+    const initial = keypair ? setTimeout(refreshBalance, 0) : undefined;
+    return () => {
+      if (initial !== undefined) clearTimeout(initial);
+    };
   }, [keypair, refreshBalance]);
 
   const connectWallet = useCallback(() => {

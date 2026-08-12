@@ -25,9 +25,8 @@ type UnifiedEntry =
 function badgeColors(entry: UnifiedEntry) {
   if (entry.type === 'transfer') {
     const map: Record<number, { bg: string; text: string; border: string }> = {
-      [WORKFLOW_STATUS.PENDING]: { bg: '#EBF5FB', text: '#2E86C1', border: '#AED6F1' },
-      [WORKFLOW_STATUS.CLAIMABLE]: { bg: '#FEF9E7', text: '#B7950B', border: '#F9E79F' },
-      [WORKFLOW_STATUS.CLAIMED]: { bg: '#EAFAF1', text: '#1E8449', border: '#A9DFBF' },
+      [WORKFLOW_STATUS.SCHEDULED]: { bg: '#EBF5FB', text: '#2E86C1', border: '#AED6F1' },
+      [WORKFLOW_STATUS.EXECUTED]: { bg: '#EAFAF1', text: '#1E8449', border: '#A9DFBF' },
       [WORKFLOW_STATUS.CANCELLED]: { bg: '#FDEDEC', text: '#C0392B', border: '#F5B7B1' },
     };
     return map[entry.state.status] ?? { bg: '#f3f4f6', text: '#6b7280', border: '#d1d5db' };
@@ -43,9 +42,8 @@ function badgeColors(entry: UnifiedEntry) {
 function isTerminal(entry: UnifiedEntry): boolean {
   if (entry.type === 'transfer') {
     return (
-      entry.state.status === WORKFLOW_STATUS.CLAIMED ||
-      entry.state.status === WORKFLOW_STATUS.CANCELLED ||
-      entry.state.status === WORKFLOW_STATUS.CLAIMABLE
+      entry.state.status === WORKFLOW_STATUS.EXECUTED ||
+      entry.state.status === WORKFLOW_STATUS.CANCELLED
     );
   }
   return (
@@ -84,9 +82,12 @@ export default function HistoryPage() {
   }, [client, wallet.publicKey]);
 
   useEffect(() => {
-    refresh();
+    const initial = setTimeout(refresh, 0);
     const interval = setInterval(refresh, 15_000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(interval);
+    };
   }, [refresh]);
 
   const terminal = entries.filter(isTerminal);

@@ -1,0 +1,9 @@
+package rialo:recurring-allowance-v2@0.1.0;
+
+use rialo:primitives@0.1.0.{pubkey, lamports, timestamp, error};
+
+world recurring-allowance-v2 {
+    export create: func(recipient: pubkey, vault: pubkey, installment-amount: u64, interval-ms: u64, first-execution-at-ms: u64, payment-count: u8) -> result<_, error>;
+    export get-state: func() -> result<_, error>;
+    export cancel: func(subscription: pubkey, vault: pubkey) -> result<_, error>;
+}

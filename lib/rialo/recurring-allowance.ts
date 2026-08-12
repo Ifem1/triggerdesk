@@ -4,12 +4,12 @@ import {
   type Keypair,
   type RialoClient,
   type Instruction,
-  KELVIN_PER_RLO,
 } from '@rialo/ts-cdk';
 import { RECURRING_ALLOWANCE_PROGRAM_ID, ALLOWANCE_STATUS } from './constants';
 import type { RecurringAllowanceState, CreateRecurringAllowanceParams } from './types';
 import { saveClientCreatedAt } from './client-timestamps';
 import { recordMyWorkflow } from './my-workflows';
+import { parseRloToKelvin } from './money';
 
 const PROGRAM_ID = PublicKey.fromString(RECURRING_ALLOWANCE_PROGRAM_ID);
 const SYSTEM_PROGRAM = PublicKey.fromString('11111111111111111111111111111111');
@@ -85,7 +85,7 @@ export async function createRecurringAllowance(
   params: CreateRecurringAllowanceParams,
 ): Promise<{ signature: string; workflowPda: string; slug: Uint8Array }> {
   const recipientPubkey = PublicKey.fromString(params.recipientAddress);
-  const amountKelvin = BigInt(Math.round(params.amountRlo * KELVIN_PER_RLO));
+  const amountKelvin = parseRloToKelvin(params.amountRlo);
   const intervalSeconds = BigInt(params.intervalSeconds);
 
   const slug = generateRandomSlug();
@@ -145,6 +145,9 @@ export async function createRecurringAllowance(
 }
 
 export function decodeAllowanceState(data: Uint8Array): RecurringAllowanceState {
+  if (data.byteLength < 81) {
+    throw new Error(`Recurring Allowance V1 account is too short: ${data.byteLength} bytes`);
+  }
   const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
 
   const discriminator = view.getBigUint64(0, true);
@@ -156,6 +159,10 @@ export function decodeAllowanceState(data: Uint8Array): RecurringAllowanceState 
   const distributionCount = view.getBigUint64(64, true);
   const createdAt = view.getBigUint64(72, true);
   const status = data[80];
+
+  if (!(Object.values(ALLOWANCE_STATUS) as number[]).includes(status)) {
+    throw new Error(`Unknown Recurring Allowance V1 status: ${status}`);
+  }
 
   return {
     discriminator,

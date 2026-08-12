@@ -1,8 +1,15 @@
 export interface ScheduledTransferState {
   discriminator: bigint;
+  schemaVersion: number;
   recipient: string;
+  creator: string;
+  vault: string;
+  subscription: string;
   amountKelvin: bigint;
   scheduledAt: bigint;
+  fundedAmount: bigint;
+  paidAmount: bigint;
+  refundedAmount: bigint;
   createdAt: bigint;
   status: number;
 }
@@ -15,7 +22,7 @@ export interface WorkflowInfo {
 
 export interface CreateScheduledTransferParams {
   recipientAddress: string;
-  amountRlo: number;
+  amountRlo: string;
   delaySeconds: number;
 }
 
@@ -32,7 +39,7 @@ export interface RecurringAllowanceState {
 
 export interface CreateRecurringAllowanceParams {
   recipientAddress: string;
-  amountRlo: number;
+  amountRlo: string;
   intervalSeconds: number;
 }
 

@@ -1,0 +1,9 @@
+package rialo:scheduled-transfer-v2@0.1.0;
+
+use rialo:primitives@0.1.0.{pubkey, lamports, timestamp, error};
+
+world scheduled-transfer-v2 {
+    export create: func(recipient: pubkey, vault: pubkey, amount: u64, execute-at-ms: u64) -> result<_, error>;
+    export get-state: func() -> result<_, error>;
+    export cancel: func(subscription: pubkey, vault: pubkey) -> result<_, error>;
+}
