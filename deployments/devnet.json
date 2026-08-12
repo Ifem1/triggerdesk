@@ -18,6 +18,20 @@
       "deploymentTransaction": null,
       "notes": "Final schema-stable V2. Deployment succeeded despite the 0.12.2 CLI returning InvalidArgument during its post-deploy retry/poll. Program show and executable payload hashing independently prove deployment. See docs/SCHEDULED-TRANSFER-V2-E2E.md."
     },
+    "scheduledTransferV2SurplusP0Test": {
+      "programId": "3BA494eLRy15oHN4ST2Fq8Bx231xdPDfJy1tpP7hyoD6",
+      "schemaVersion": 2,
+      "owner": "RiscVLoader11111111111111111111111111111111",
+      "executable": true,
+      "loaderAccountHeaderBytes": 48,
+      "artifactSha256": "C010CC54305FDF2A71592639377CD95E781DA798A45AA6D8FDC4C10570C840D1",
+      "manifestSha256": "E203DE1203AF0DAB885A13F9F27C80680DD212FF5E35E64E575AA9B4F2F8926B",
+      "clientManifestSha256": "132A31E7DB12108D0710372A83A9A7DE2E9B5418D6F0E4F2CBC20A272B79E153",
+      "witSha256": "669528A39A25BE1249B420A3D9CECD0F7F81A649E2178D993632681AC79D1C5D",
+      "deployedPayloadSha256": "C010CC54305FDF2A71592639377CD95E781DA798A45AA6D8FDC4C10570C840D1",
+      "deploymentTransaction": null,
+      "notes": "Disposable P0 surplus-hardening DevNet deployment. Direct account query verifies RISC-V loader, executable flag, 48-byte header, and exact payload hash. The 0.12.2 deploy CLI does not retain a single deployment transaction ID; see docs/SCHEDULED-TRANSFER-V2-E2E.md for direct account and live transaction evidence."
+    },
     "scheduledTransferV1": {
       "programId": "7BcfcJEJPxatpejoHjbWfPNnEnEsnk3fh1toN4pYCuxh",
       "schemaVersion": 1,

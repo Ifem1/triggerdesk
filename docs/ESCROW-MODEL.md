@@ -17,6 +17,8 @@ Definitions:
 - `D`: principal already delivered;
 - `U`: unpaid principal;
 - `X`: principal refunded.
+- `S`: unsolicited positive vault surplus. It is not principal, does not alter
+  `P`, and is never paid to the recipient.
 
 Equations:
 
@@ -30,6 +32,20 @@ recurring active: D=n*A, U=(N-n)*A, X=0
 recurring completed: D=N*A, U=0, X=0
 recurring refunded: D=n*A, U=0, X=(N-n)*A
 ```
+
+## Unsolicited vault balance policy
+
+The system-owned vault PDA is publicly addressable and may receive additional
+RLO after creation. A terminal operation therefore validates `vault_balance >=
+U` rather than equality. It transfers exactly `U` principal to its protocol
+destination, then atomically transfers any `S = vault_balance - U` only to the
+immutable creator stored in workflow state. The recipient never receives `S`.
+
+For Scheduled Transfer V2, `U = P` while scheduled. Execution pays exactly `P`
+to the stored recipient and sweeps `S` to the stored creator; cancellation
+refunds exactly `P` and sweeps the same `S` to that creator. The sweep is not a
+caller-selected destination and terminal state is committed only after both
+transfers succeed, so no surplus can strand or be paid twice.
 
 Reserve and fee balances must be measured and documented separately. Account
 closure may return only the documented residual to the creator after every

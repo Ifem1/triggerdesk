@@ -118,12 +118,24 @@ rialo! {
             ) -> ProgramResult {
                 let recipient_account = WriteAccountInfo::from(recipient);
                 let vault_account = WriteAccountInfo::from(vault);
+                let creator_account = &self.accounts[0];
 
                 self.validate_scheduled()?;
-                if *recipient_account.key != self.recipient || *vault_account.key != self.vault {
+                if *creator_account.key != self.creator
+                    || *recipient_account.key != self.recipient
+                    || *vault_account.key != self.vault
+                {
                     return Err(ProgramError::InvalidArgument);
                 }
                 self.validate_vault(vault_account)?;
+                // The principal is immutable workflow state. Any amount above it is
+                // unsolicited vault balance and is never part of the recipient's
+                // payment. Snapshot it before the principal CPI so the two
+                // transfers are explicit and transaction-atomic.
+                let surplus = vault_account
+                    .kelvins()
+                    .checked_sub(self.amount)
+                    .ok_or(ProgramError::InsufficientFunds)?;
 
                 rialo_s_cpi::invoke_signed(
                     &rialo_s_system_interface::instruction::transfer(
@@ -139,6 +151,26 @@ rialo! {
                         &[self.vault_bump],
                     ]],
                 )?;
+
+                // Return unsolicited balance only to the immutable stored creator.
+                // The callback's payer is the workflow creator; checking it above
+                // prevents a caller-controlled residual destination.
+                if surplus != 0 {
+                    rialo_s_cpi::invoke_signed(
+                        &rialo_s_system_interface::instruction::transfer(
+                            vault_account.key,
+                            creator_account.key,
+                            surplus,
+                        ),
+                        &[vault_account.clone(), creator_account.clone()],
+                        &[&[
+                            crate::VAULT_SEED,
+                            self.creator.as_ref(),
+                            self.workflow_pda_slug.as_bytes(),
+                            &[self.vault_bump],
+                        ]],
+                    )?;
+                }
 
                 self.paid_amount = self.amount;
                 self.status = crate::STATUS_EXECUTED;
@@ -186,6 +218,10 @@ rialo! {
                     return Err(ProgramError::InvalidArgument);
                 }
                 self.validate_vault(vault_account)?;
+                let surplus = vault_account
+                    .kelvins()
+                    .checked_sub(self.amount)
+                    .ok_or(ProgramError::InsufficientFunds)?;
 
                 // Cancel the native one-shot subscription before releasing escrow.
                 // Any later failure rolls this CPI back atomically with the refund.
@@ -228,6 +264,26 @@ rialo! {
                         &[self.vault_bump],
                     ]],
                 )?;
+
+                // The signer is the immutable creator, so cancellation returns
+                // both the exact unused principal and any unsolicited surplus to
+                // a deterministic, authorized destination.
+                if surplus != 0 {
+                    rialo_s_cpi::invoke_signed(
+                        &rialo_s_system_interface::instruction::transfer(
+                            vault_account.key,
+                            creator_account.key,
+                            surplus,
+                        ),
+                        &[vault_account.clone(), creator_account.clone()],
+                        &[&[
+                            crate::VAULT_SEED,
+                            self.creator.as_ref(),
+                            self.workflow_pda_slug.as_bytes(),
+                            &[self.vault_bump],
+                        ]],
+                    )?;
+                }
 
                 self.refunded_amount = self.amount;
                 self.status = crate::STATUS_CANCELLED;
@@ -284,7 +340,10 @@ rialo! {
                 if *vault_account.key != expected_vault
                     || vault_account.owner != &system_program::ID
                     || vault_account.data_len() != 0
-                    || vault_account.kelvins() != self.amount
+                    // A public system-owned PDA may receive unsolicited funds.
+                    // Principal is safe whenever the vault can cover it; all
+                    // excess is swept to the immutable creator on a terminal path.
+                    || vault_account.kelvins() < self.amount
                 {
                     return Err(ProgramError::InvalidAccountData);
                 }

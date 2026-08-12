@@ -39,6 +39,9 @@ supported by repository, test, deployment, or external-blocker evidence.
   program, including exact recipient delta, replay rejection, subscription
   cleanup, exact refund, and idempotent repeat cancel. See
   `docs/SCHEDULED-TRANSFER-V2-E2E.md`.
+- [x] Scheduled Transfer V2 surplus deposits cannot lock principal: DevNet
+  `+1` and `+1000` kelvin payment cases and `+1` kelvin cancellation returned
+  only surplus to the immutable creator while preserving exact principal.
 - [ ] Recurring Allowance escrow/installments/refund.
 - [x] Disposable capability gate: native AFTER increased the recipient by
   exactly 1,000,000 kelvins; a wrong bump moved zero and left 2,000,000
