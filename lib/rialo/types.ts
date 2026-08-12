@@ -1,8 +1,15 @@
 export interface ScheduledTransferState {
   discriminator: bigint;
+  schemaVersion: number;
   recipient: string;
+  creator: string;
+  vault: string;
+  subscription: string;
   amountKelvin: bigint;
   scheduledAt: bigint;
+  fundedAmount: bigint;
+  paidAmount: bigint;
+  refundedAmount: bigint;
   createdAt: bigint;
   status: number;
 }

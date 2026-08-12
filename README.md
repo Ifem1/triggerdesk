@@ -1,108 +1,40 @@
-# TriggerDesk — Rialo-Native Automation
+# TriggerDesk — Rialo DevNet evidence demo
 
-**Automated on-chain workflows powered by Venus programs and native subscriptions on Rialo DevNet.**
+TriggerDesk documents and displays verified Rialo-native Scheduled Transfer V2
+escrow evidence on DevNet. A V2 workflow funds a PDA-controlled vault; Rialo's
+native subscription callback pays the exact principal without a keeper, cron,
+browser timer, backend scheduler, or Codespace process.
 
-Repo: https://github.com/Ifem1/triggerdesk
+## Current demo state
 
----
+The verified V2 program is
+`3BA494eLRy15oHN4ST2Fq8Bx231xdPDfJy1tpP7hyoD6`. Its deployed payload and
+artifact hash match:
+`c010cc54305fdf2a71592639377cd95e781da798a45aa6d8fdc4c10570c840d1`.
 
-## What Is TriggerDesk?
+The public create controls are deliberately disabled. Stable Venus 0.12.2
+generates a `slot..=slot + 100` timer lease and a controlled 5/10/15/20-second
+DevNet matrix produced no interval with the required 3/3 autonomous exact
+payment result. TriggerDesk does not submit unsupported timers or simulate a
+payment. Recurring Allowance is hidden for the same reason.
 
-TriggerDesk lets you define a workflow once and have it execute automatically on-chain. No keepers, no cron jobs, no off-chain infrastructure.
+Verified historical V2 evidence includes exact native payment, creator-only
+cancellation/refund, replay boundary and +1/+1000 kelvin surplus hardening.
+See [Scheduled V2 evidence](docs/SCHEDULED-TRANSFER-V2-E2E.md) and
+[scheduling evidence](docs/SCHEDULING-HORIZON.md).
 
-> Define a rule. Deploy it on-chain. Rialo fires the callback at the right time.
-
-Built on Venus programs (compiled to PolkaVM RISC-V) and Rialo's native subscription engine.
-
----
-
-## Live Templates
-
-| Template | Program ID | What It Does |
-|---|---|---|
-| **Scheduled Transfer** | `7BcfcJEJPxatpejoHjbWfPNnEnEsnk3fh1toN4pYCuxh` | Create a timed workflow whose AFTER callback changes on-chain state from pending to claimable. It does not currently transfer RLO. |
-| **Recurring Allowance** | `6TpMo9xFFLYktHhmXzaTkBp2rPTzAuLrk699W7NAW7RZ` | Create a finite three-callback workflow that updates distribution counters. It does not currently transfer RLO. |
-
-Both programs are deployed on Rialo DevNet and their native callbacks have been observed updating state. They are experimental DevNet automation proofs, not production payment products.
-
----
-
-## How It Works
-
-```
-User creates workflow via browser UI
-  -> TypeScript CDK builds transaction (PDA derivation, bincode encoding)
-  -> Transaction submitted to Rialo DevNet via RPC proxy
-  -> Venus program creates workflow PDA + AFTER subscriptions
-  -> Rialo network fires callbacks at scheduled times (no keeper)
-  -> On-chain state updated automatically
-  -> Dashboard reads live state from DevNet
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 (App Router, TypeScript) |
-| UI | React 19 + Tailwind CSS v4 |
-| Blockchain SDK | @rialo/ts-cdk 0.12.2 |
-| Smart Contracts | Venus DSL (Rust) -> PolkaVM |
-| Network | Rialo DevNet |
-
----
-
-## Pages
-
-| Page | Purpose |
-|---|---|
-| `/` | Landing page with product overview |
-| `/dashboard` | Live dashboard with on-chain workflow cards |
-| `/workflows/new` | Create a new scheduled transfer |
-| `/workflows/new-allowance` | Create a new recurring allowance |
-| `/workflows/[address]` | Workflow detail (auto-detects program type) |
-| `/history` | All workflow executions from DevNet |
-| `/settings` | App settings |
-
----
-
-## Running Locally
+## Run locally
 
 ```bash
-git clone https://github.com/Ifem1/triggerdesk.git
-cd triggerdesk
-npm install
+npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. Requires internet for DevNet RPC access.
+Open `http://localhost:3000`. The temporary wallet and faucet are DevNet-only;
+never use or send real funds.
 
----
+## Post-demo work
 
-## Project Structure
-
-```
-app/                    # Next.js pages and API routes
-  api/rpc/route.ts      # RPC proxy (browser -> DevNet)
-  dashboard/            # Main dashboard
-  workflows/            # Workflow creation and detail pages
-  history/              # Execution history
-lib/rialo/              # TypeScript CDK service layer
-  client.ts             # RialoClient singleton
-  scheduled-transfer.ts # Scheduled transfer operations
-  recurring-allowance.ts# Recurring allowance operations
-  provider.tsx          # React context for wallet state
-  keypair.ts            # Ephemeral key management
-programs/               # Venus programs (Rust source + compiled PolkaVM)
-  scheduled-transfer/   # AFTER <time> -> mark claimable
-  recurring-allowance/  # 3x AFTER -> update allowance counters
-  triggerdesk-phase0/   # Phase 0 proof-of-concept
-```
-
----
-
-## Documentation
-
-- **[HANDOVER.md](HANDOVER.md)** — Full technical handover with deployment instructions, Vercel setup, known issues, and what's next
-- **[PHASE0-REPORT.md](PHASE0-REPORT.md)** — Phase 0 capability gate evidence proving AFTER callbacks work on DevNet
+Expose a stable Venus/Rialo timer configuration only after a new release and
+controlled 3/3 timing proof. Mainnet, production wallet integration,
+independent audit and long-duration scheduling are outside this DevNet demo.

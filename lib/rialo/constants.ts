@@ -9,17 +9,20 @@ export const DEVNET_RPC_URL = ACTIVE_NETWORK.rpcUrl;
 
 export const WORKFLOW_STATUS = {
   UNINITIALIZED: 0,
+  SCHEDULED: 1,
+  EXECUTED: 2,
+  CANCELLED: 3,
+  // Read-only legacy UI aliases. They intentionally map to V2 terminal
+  // semantics while historical V1 pages are retired from active creation.
   PENDING: 1,
   CLAIMABLE: 2,
   CLAIMED: 3,
-  CANCELLED: 4,
 } as const;
 
 export const WORKFLOW_STATUS_LABEL: Record<number, string> = {
   [WORKFLOW_STATUS.UNINITIALIZED]: 'Uninitialized',
-  [WORKFLOW_STATUS.PENDING]: 'Pending',
-  [WORKFLOW_STATUS.CLAIMABLE]: 'Claimable',
-  [WORKFLOW_STATUS.CLAIMED]: 'Claimed',
+  [WORKFLOW_STATUS.SCHEDULED]: 'Scheduled',
+  [WORKFLOW_STATUS.EXECUTED]: 'Executed',
   [WORKFLOW_STATUS.CANCELLED]: 'Cancelled',
 };
 

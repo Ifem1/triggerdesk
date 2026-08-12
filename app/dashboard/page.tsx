@@ -44,9 +44,8 @@ function StatusBadge({ label, status }: { label: string; status: 'active' | 'don
 function getUnifiedStatus(entry: UnifiedEntry): { label: string; badge: 'active' | 'done' | 'error' | 'pending' } {
   if (entry.type === 'transfer') {
     const s = entry.state.status;
-    if (s === WORKFLOW_STATUS.PENDING) return { label: getStatusLabel(s), badge: 'active' };
-    if (s === WORKFLOW_STATUS.CLAIMABLE) return { label: getStatusLabel(s), badge: 'pending' };
-    if (s === WORKFLOW_STATUS.CLAIMED) return { label: getStatusLabel(s), badge: 'done' };
+    if (s === WORKFLOW_STATUS.SCHEDULED) return { label: getStatusLabel(s), badge: 'active' };
+    if (s === WORKFLOW_STATUS.EXECUTED) return { label: getStatusLabel(s), badge: 'done' };
     if (s === WORKFLOW_STATUS.CANCELLED) return { label: getStatusLabel(s), badge: 'error' };
     return { label: getStatusLabel(s), badge: 'pending' };
   } else {
@@ -107,11 +106,11 @@ export default function DashboardPage() {
   }, [refresh]);
 
   const active = entries.filter((e) => {
-    if (e.type === 'transfer') return e.state.status === WORKFLOW_STATUS.PENDING;
+    if (e.type === 'transfer') return e.state.status === WORKFLOW_STATUS.SCHEDULED;
     return e.state.status === ALLOWANCE_STATUS.ACTIVE;
   });
   const completed = entries.filter((e) => {
-    if (e.type === 'transfer') return e.state.status === WORKFLOW_STATUS.CLAIMED || e.state.status === WORKFLOW_STATUS.CLAIMABLE;
+    if (e.type === 'transfer') return e.state.status === WORKFLOW_STATUS.EXECUTED;
     return e.state.status === ALLOWANCE_STATUS.COMPLETE;
   });
   const cancelled = entries.filter((e) => {
@@ -180,24 +179,6 @@ export default function DashboardPage() {
                 <span style={{ fontWeight: 600 }}>Scheduled Transfer</span>
                 <span style={{ display: 'block', fontSize: 11, color: P.olive, marginTop: 2 }}>
                   One-time future send with AFTER
-                </span>
-              </Link>
-              <Link
-                href="/workflows/new-allowance"
-                onClick={() => setShowMenu(false)}
-                style={{
-                  display: 'block',
-                  padding: '10px 14px',
-                  borderRadius: 8,
-                  textDecoration: 'none',
-                  color: P.bark,
-                  fontSize: 13,
-                }}
-                className="hover:opacity-80"
-              >
-                <span style={{ fontWeight: 600 }}>Recurring Allowance</span>
-                <span style={{ display: 'block', fontSize: 11, color: P.olive, marginTop: 2 }}>
-                  3 distributions at fixed interval
                 </span>
               </Link>
             </div>
@@ -319,18 +300,10 @@ export default function DashboardPage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
-                      {entry.type === 'allowance' && (
-                        <div style={{ textAlign: 'right' }}>
-                          <p style={{ fontSize: 11, color: P.olive }}>Distributions</p>
-                          <p style={{ fontSize: 12, color: P.bark }}>
-                            {(entry.state as RecurringAllowanceState).distributionCount.toString()} / 3
-                          </p>
-                        </div>
-                      )}
                       {entry.type === 'transfer' && (
                         <div style={{ textAlign: 'right' }}>
                           <p style={{ fontSize: 11, color: P.olive }}>
-                            {(entry.state as ScheduledTransferState).status === WORKFLOW_STATUS.PENDING
+                            {(entry.state as ScheduledTransferState).status === WORKFLOW_STATUS.SCHEDULED
                               ? 'Fires at'
                               : 'Scheduled for'}
                           </p>

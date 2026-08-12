@@ -18,7 +18,8 @@ const DEVNET: NetworkConfig = {
   rpcUrl: deployment.rpc,
   explorerUrl: null,
   cdkVersion: '0.12.2',
-  scheduledTransfer: deployment.programs.scheduledTransferV1,
+  // V1 identities remain in the registry only for historical evidence.
+  scheduledTransfer: deployment.programs.scheduledTransferV2SurplusP0Test,
   recurringAllowance: deployment.programs.recurringAllowanceV1,
 };
 
