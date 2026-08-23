@@ -413,6 +413,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
+name = "errno"
+version = "0.3.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
+dependencies = [
+ "libc",
+ "windows-sys",
+]
+
+[[package]]
 name = "ff"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -454,6 +464,16 @@ name = "foldhash"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
+
+[[package]]
+name = "fs4"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e72ed92b67c146290f88e9c89d60ca163ea417a446f61ffd7b72df3e7f1dfd5"
+dependencies = [
+ "rustix",
+ "windows-sys",
+]
 
 [[package]]
 name = "futures-core"
@@ -631,6 +651,12 @@ name = "libc"
 version = "0.2.189"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
+
+[[package]]
+name = "linux-raw-sys"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 
 [[package]]
 name = "lock_api"
@@ -882,6 +908,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rialo-atomic-u64"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc0c0c0eee2c050babce723b3283487101879b9652b061c2ef2a25c76416a86b"
+dependencies = [
+ "parking_lot",
+]
+
+[[package]]
 name = "rialo-cli-representable"
 version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -910,7 +945,7 @@ dependencies = [
  "psmatcher",
  "rialo-events-derive",
  "rialo-s-program",
- "rialo-s-sha256-hasher",
+ "rialo-s-sha256-hasher 0.12.2",
  "serde",
 ]
 
@@ -935,10 +970,23 @@ dependencies = [
  "bytemuck",
  "bytemuck_derive",
  "js-sys",
- "rialo-atomic-u64",
- "rialo-sanitize",
+ "rialo-atomic-u64 0.12.2",
+ "rialo-sanitize 0.12.2",
  "serde",
  "serde_derive",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "rialo-hash"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e126d95daae7605c11c2ed22927a29f8fd9e5a14170075d8fa465ee56aa1b2e4"
+dependencies = [
+ "bs58",
+ "js-sys",
+ "rialo-atomic-u64 0.18.1",
+ "rialo-sanitize 0.18.1",
  "wasm-bindgen",
 ]
 
@@ -948,7 +996,17 @@ version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38a31b4dbd38b619650b8b8df59fac121aa41bf6c46fd1ba735546d29267b6eb"
 dependencies = [
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
+ "tracing",
+]
+
+[[package]]
+name = "rialo-limits"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3f321732699a9ad9a2b70dd7e056803b2102148ef98cd51abbbd91e53ae1f34"
+dependencies = [
+ "rialo-s-pubkey 0.18.1",
  "tracing",
 ]
 
@@ -966,7 +1024,7 @@ dependencies = [
  "rialo-events-core",
  "rialo-s-instruction",
  "rialo-s-program",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-types",
  "serde",
  "serde-big-array",
@@ -981,7 +1039,7 @@ dependencies = [
  "rialo-events-core",
  "rialo-s-instruction",
  "rialo-s-program",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-types",
  "rialo-websocket-registry-interface",
  "serde",
@@ -994,10 +1052,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65ae1c53e130f2d0b73a89aeefdd78526dcc92aea06c25e2566402b367a8f03d"
 dependencies = [
  "bincode",
- "rialo-s-define-syscall",
+ "rialo-s-define-syscall 0.12.2",
  "rialo-s-program-error",
  "rialo-s-program-memory",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "serde",
 ]
 
@@ -1042,10 +1100,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba840f4e56f1fc8dc94d08e95d989f20dd6a6bd057bb7ff5352ae48491c04fa6"
 dependencies = [
  "rialo-s-account-info",
- "rialo-s-define-syscall",
+ "rialo-s-define-syscall 0.12.2",
  "rialo-s-instruction",
  "rialo-s-program-error",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-s-stable-layout",
 ]
 
@@ -1059,10 +1117,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "rialo-s-decode-error"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb4ae93388fa30ce9b21ac8f7500815bc2e0dc46ea96a894f08611d9fdaed6d5"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "rialo-s-define-syscall"
 version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0dd339027428dba82c89941e2e58345b1f6c198db660b6e6eeeca991b3433b2"
+dependencies = [
+ "polkavm-derive",
+]
+
+[[package]]
+name = "rialo-s-define-syscall"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e600471958187359acd2b64e39c93849be39964b87cf72ba938e6d073f8e4ed8"
 dependencies = [
  "polkavm-derive",
 ]
@@ -1086,13 +1162,13 @@ version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da81a8f669db2b398f9614f4e4057f8d9c00eb621367766621f44e2b9e045a18"
 dependencies = [
- "rialo-hash",
+ "rialo-hash 0.12.2",
  "rialo-s-clock",
  "rialo-s-instruction",
  "rialo-s-keccak-hasher",
  "rialo-s-message",
  "rialo-s-nonce",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-s-sdk-ids",
  "rialo-s-system-interface",
  "serde",
@@ -1120,8 +1196,8 @@ dependencies = [
  "getrandom",
  "js-sys",
  "num-traits",
- "rialo-s-define-syscall",
- "rialo-s-pubkey",
+ "rialo-s-define-syscall 0.12.2",
+ "rialo-s-pubkey 0.12.2",
  "serde",
  "serde_derive",
  "wasm-bindgen",
@@ -1137,11 +1213,11 @@ dependencies = [
  "rialo-s-account-info",
  "rialo-s-instruction",
  "rialo-s-program-error",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-s-sdk-ids",
  "rialo-s-serialize-utils",
  "rialo-s-sysvar-id",
- "rialo-sanitize",
+ "rialo-sanitize 0.12.2",
 ]
 
 [[package]]
@@ -1150,9 +1226,9 @@ version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f3e5f90119ba2048ddba8a80c0238348b06ee0c67ebf6fc030f8111d0491d94"
 dependencies = [
- "rialo-hash",
- "rialo-s-define-syscall",
- "rialo-sanitize",
+ "rialo-hash 0.12.2",
+ "rialo-s-define-syscall 0.12.2",
+ "rialo-sanitize 0.12.2",
  "sha3",
 ]
 
@@ -1164,15 +1240,15 @@ checksum = "6a3e7c63cc18f66968900c4016cc758994d710c4de0a75ad4a8a605d5f8e4cd5"
 dependencies = [
  "bincode",
  "blake3",
- "rialo-hash",
+ "rialo-hash 0.12.2",
  "rialo-s-bincode",
  "rialo-s-instruction",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-s-sdk-ids",
  "rialo-s-short-vec",
  "rialo-s-system-interface",
  "rialo-s-transaction-error",
- "rialo-sanitize",
+ "rialo-sanitize 0.12.2",
  "serde",
  "serde_derive",
  "wasm-bindgen",
@@ -1184,7 +1260,7 @@ version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfdc9e30802323e17546febc52e471dcfa23add84f000c40f3bd8440c7a760e4"
 dependencies = [
- "rialo-s-define-syscall",
+ "rialo-s-define-syscall 0.12.2",
 ]
 
 [[package]]
@@ -1199,10 +1275,10 @@ version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf004fc507adc38e32017d6971dc6f5119ccaa8f2e0e7f0f18a97a6aa23c937b"
 dependencies = [
- "rialo-hash",
+ "rialo-hash 0.12.2",
  "rialo-s-fee-calculator",
- "rialo-s-pubkey",
- "rialo-s-sha256-hasher",
+ "rialo-s-pubkey 0.12.2",
+ "rialo-s-sha256-hasher 0.12.2",
  "serde",
  "serde_derive",
 ]
@@ -1218,13 +1294,13 @@ dependencies = [
  "getrandom",
  "log",
  "memoffset",
- "rialo-hash",
+ "rialo-hash 0.12.2",
  "rialo-s-account-info",
  "rialo-s-bincode",
  "rialo-s-clock",
  "rialo-s-cpi",
- "rialo-s-decode-error",
- "rialo-s-define-syscall",
+ "rialo-s-decode-error 0.12.2",
+ "rialo-s-define-syscall 0.12.2",
  "rialo-s-epoch-schedule",
  "rialo-s-example-mocks",
  "rialo-s-fee-calculator",
@@ -1239,18 +1315,18 @@ dependencies = [
  "rialo-s-program-error",
  "rialo-s-program-memory",
  "rialo-s-program-option",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-s-rent",
  "rialo-s-sdk-ids",
  "rialo-s-secp256k1-recover",
  "rialo-s-serialize-utils",
- "rialo-s-sha256-hasher",
+ "rialo-s-sha256-hasher 0.12.2",
  "rialo-s-short-vec",
  "rialo-s-stable-layout",
  "rialo-s-system-interface",
  "rialo-s-sysvar",
  "rialo-s-sysvar-id",
- "rialo-sanitize",
+ "rialo-sanitize 0.12.2",
  "wasm-bindgen",
 ]
 
@@ -1265,7 +1341,7 @@ dependencies = [
  "rialo-s-account-info",
  "rialo-s-msg",
  "rialo-s-program-error",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
 ]
 
 [[package]]
@@ -1276,10 +1352,10 @@ checksum = "5492231c6b8195cf215cf24ad57cdc3342237e613601ec82bbfb7fbb3e2afccb"
 dependencies = [
  "borsh",
  "num-traits",
- "rialo-s-decode-error",
+ "rialo-s-decode-error 0.12.2",
  "rialo-s-instruction",
  "rialo-s-msg",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "serde",
  "serde_derive",
 ]
@@ -1291,7 +1367,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1bc0956dccb7ac83d68474996d0b8e46ac7b40f2a8930709e39b784bfaaf1892"
 dependencies = [
  "num-traits",
- "rialo-s-define-syscall",
+ "rialo-s-define-syscall 0.12.2",
 ]
 
 [[package]]
@@ -1315,13 +1391,32 @@ dependencies = [
  "getrandom",
  "js-sys",
  "num-traits",
- "rialo-atomic-u64",
- "rialo-s-decode-error",
- "rialo-s-define-syscall",
- "rialo-s-sha256-hasher",
- "rialo-sanitize",
+ "rialo-atomic-u64 0.12.2",
+ "rialo-s-decode-error 0.12.2",
+ "rialo-s-define-syscall 0.12.2",
+ "rialo-s-sha256-hasher 0.12.2",
+ "rialo-sanitize 0.12.2",
  "serde",
  "serde_derive",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "rialo-s-pubkey"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6c97bce3477fee730cac74456a9f2ed05d31e471097bb8438fe0c7fe8997390"
+dependencies = [
+ "bs58",
+ "five8_const",
+ "getrandom",
+ "js-sys",
+ "num-traits",
+ "rialo-atomic-u64 0.18.1",
+ "rialo-s-decode-error 0.18.1",
+ "rialo-s-define-syscall 0.18.1",
+ "rialo-s-sha256-hasher 0.18.1",
+ "rialo-sanitize 0.18.1",
  "wasm-bindgen",
 ]
 
@@ -1344,7 +1439,7 @@ version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db84d4b24dcafaa830786302328bd8cd46eaf5399c2fc0fe057c1fdbbf02c1e7"
 dependencies = [
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
 ]
 
 [[package]]
@@ -1366,7 +1461,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "967e65d433c97aa4feee544555c314388a70120fb4165b703737368168a52190"
 dependencies = [
  "k256",
- "rialo-s-define-syscall",
+ "rialo-s-define-syscall 0.12.2",
  "thiserror",
 ]
 
@@ -1377,8 +1472,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93134e43b4764d5e7312d42eea29405324c0dab35a2c373cc8fd5e6f7440becb"
 dependencies = [
  "rialo-s-instruction",
- "rialo-s-pubkey",
- "rialo-sanitize",
+ "rialo-s-pubkey 0.12.2",
+ "rialo-sanitize 0.12.2",
 ]
 
 [[package]]
@@ -1387,8 +1482,19 @@ version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9ba5631129707787dd23987def4739d9b068f71c515c55b303ec29b82408d3a"
 dependencies = [
- "rialo-hash",
- "rialo-s-define-syscall",
+ "rialo-hash 0.12.2",
+ "rialo-s-define-syscall 0.12.2",
+ "sha2",
+]
+
+[[package]]
+name = "rialo-s-sha256-hasher"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "201745331e85bbeef237d03db7f7463fbc584e039156dbe86b427a6e495f1f55"
+dependencies = [
+ "rialo-hash 0.18.1",
+ "rialo-s-define-syscall 0.18.1",
  "sha2",
 ]
 
@@ -1408,7 +1514,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c5ec68d39c76de70616342ca3916bb93e5cec7f99e26b6df6d574f6b316764a2"
 dependencies = [
  "rialo-s-instruction",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
 ]
 
 [[package]]
@@ -1419,9 +1525,9 @@ checksum = "23ef92b2a803a0abc8b51fcf57cf669d0031613ef0b14ed8907867e0100546e5"
 dependencies = [
  "js-sys",
  "num-traits",
- "rialo-s-decode-error",
+ "rialo-s-decode-error 0.12.2",
  "rialo-s-instruction",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "serde",
  "serde_derive",
  "wasm-bindgen",
@@ -1437,17 +1543,17 @@ dependencies = [
  "bincode",
  "bytemuck",
  "bytemuck_derive",
- "rialo-hash",
+ "rialo-hash 0.12.2",
  "rialo-s-account-info",
  "rialo-s-clock",
- "rialo-s-define-syscall",
+ "rialo-s-define-syscall 0.12.2",
  "rialo-s-epoch-schedule",
  "rialo-s-fee-calculator",
  "rialo-s-instruction",
  "rialo-s-program-entrypoint",
  "rialo-s-program-error",
  "rialo-s-program-memory",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-s-rent",
  "rialo-s-sdk-ids",
  "rialo-s-sdk-macro",
@@ -1462,7 +1568,7 @@ version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49cb67f055ff73ec7aebeb2cc854572da14b3dbfdd769f0e5b8f7bf6eaacc84b"
 dependencies = [
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-s-sdk-ids",
 ]
 
@@ -1473,7 +1579,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d24bd909c829849d91be1d2366305d4135b26aeb6661199fa4c36413e04a6e4c"
 dependencies = [
  "rialo-s-instruction",
- "rialo-sanitize",
+ "rialo-sanitize 0.12.2",
 ]
 
 [[package]]
@@ -1481,6 +1587,12 @@ name = "rialo-sanitize"
 version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88b755961194fee8083448703b5dae3f614e3dbf7e722b3c51f94505e71b9bf2"
+
+[[package]]
+name = "rialo-sanitize"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c27f2b92df0d055a553a0b5a302efa7d4983dc10f9f338fba88dfcffa2978f9"
 
 [[package]]
 name = "rialo-shared-types"
@@ -1498,10 +1610,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3de87c2a4d4790b0396a7d7a3e227ce2394fe7d692e56cb43be0d05b4ed923f"
 dependencies = [
  "rialo-events-core",
- "rialo-limits",
+ "rialo-limits 0.12.2",
  "rialo-s-instruction",
  "rialo-s-program",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-types",
  "serde",
  "thiserror",
@@ -1509,9 +1621,9 @@ dependencies = [
 
 [[package]]
 name = "rialo-syngen-dsl"
-version = "0.12.2"
+version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "940e7927316b37638719ec428be0a6a096195867365f96e532aaff07dd3b1a42"
+checksum = "ddc31b143ca5083aef4879ae26d02f7fc011393c87262407daee9294df89abb9"
 dependencies = [
  "prettyplease",
  "proc-macro2",
@@ -1521,9 +1633,9 @@ dependencies = [
 
 [[package]]
 name = "rialo-syngen-proc-macro"
-version = "0.12.2"
+version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b458b24c5d31c17353508d7767696ef6f9b1ffee761e146263f7c3054965fd34"
+checksum = "6bfbd0ad6629c78ce6a447bf46686451efd3e77fa090c2ec77c56df7c9a06e7b"
 dependencies = [
  "rialo-syngen-dsl",
  "syn 2.0.119",
@@ -1552,8 +1664,8 @@ dependencies = [
  "hex",
  "rialo-cli-representable",
  "rialo-cli-representation",
- "rialo-limits",
- "rialo-s-pubkey",
+ "rialo-limits 0.12.2",
+ "rialo-s-pubkey 0.12.2",
  "rialo-shared-types",
  "rialo-tee-types",
  "serde",
@@ -1574,8 +1686,8 @@ checksum = "901f0609a680867e6977fafe857262cf3785c58100631e1fd02b4570fc1608d8"
 dependencies = [
  "rialo-s-instruction",
  "rialo-s-program",
- "rialo-s-pubkey",
- "rialo-s-sha256-hasher",
+ "rialo-s-pubkey 0.12.2",
+ "rialo-s-sha256-hasher 0.12.2",
  "serde",
  "thiserror",
 ]
@@ -1590,7 +1702,7 @@ dependencies = [
  "bincode",
  "borsh",
  "rialo-events-core",
- "rialo-limits",
+ "rialo-limits 0.12.2",
  "rialo-rex-processor-interface",
  "rialo-rex-registry-interface",
  "rialo-s-compute-budget-interface",
@@ -1602,13 +1714,14 @@ dependencies = [
 
 [[package]]
 name = "rialo-venus-dsl"
-version = "0.12.2"
+version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73b0821789b1bf79da548c1527ccff4f9e2f35a93e046ebd4e06adb261c26798"
+checksum = "4f326454d78fead7b5911759ce08e2bc06f26d58084a9206ce02beaa8a2b631c"
 dependencies = [
+ "fs4",
  "proc-macro2",
  "quote",
- "rialo-limits",
+ "rialo-limits 0.18.1",
  "rialo-syngen-proc-macro",
  "serde_json",
  "sha2",
@@ -1618,9 +1731,9 @@ dependencies = [
 
 [[package]]
 name = "rialo-venus-proc-macro"
-version = "0.12.2"
+version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcd1464ed9b3fdc6e6c9dcda135ead03ba33cdc70219fe62fd544d952e31b75f"
+checksum = "602169d2f0aa2635fe3b03c27f6ef00ba4d0e6aa40be755c92ce7d701b1ed2b4"
 dependencies = [
  "rialo-venus-dsl",
  "syn 2.0.119",
@@ -1635,7 +1748,7 @@ dependencies = [
  "rialo-rex-processor-interface",
  "rialo-s-instruction",
  "rialo-s-program",
- "rialo-s-pubkey",
+ "rialo-s-pubkey 0.12.2",
  "rialo-types",
  "rialo-validator-registry-interface",
  "serde",
@@ -1651,6 +1764,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cfcb3a22ef46e85b45de6ee7e79d063319ebb6594faafcf1c225ea92ab6e9b92"
 dependencies = [
  "semver",
+]
+
+[[package]]
+name = "rustix"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6fe4565b9518b83ef4f91bb47ce29620ca828bd32cb7e408f0062e9930ba190"
+dependencies = [
+ "bitflags",
+ "errno",
+ "libc",
+ "linux-raw-sys",
+ "windows-sys",
 ]
 
 [[package]]
@@ -2135,6 +2261,15 @@ name = "windows-strings"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7837d08f69c77cf6b07689544538e017c1bfcf57e34b4c0ff58e6c2cd3b37091"
+dependencies = [
+ "windows-link",
+]
+
+[[package]]
+name = "windows-sys"
+version = "0.61.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc"
 dependencies = [
  "windows-link",
 ]
