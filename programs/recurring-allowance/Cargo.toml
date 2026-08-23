@@ -35,6 +35,6 @@ check-cfg = [
 [dependencies]
 rialo-s-program = { version = "0.12.2", default-features = false }
 rialo-s-program-error = { version = "0.12.2", features = ["borsh"] }
-rialo-venus = { version = "0.12.2" }
+rialo-venus = { version = "0.18.1" }
 rialo-venus-proc-macro = { version = "0.12.2" }
 serde = { version = "1.0", features = ["derive"] }
